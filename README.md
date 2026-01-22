@@ -1,2 +1,10 @@
-# Watson752.github.io
-Software Engineering student at Carleton University building projects in AI, data systems, and full-stack development. Experienced with Python, Java, React, and ML frameworks. This site showcases selected technical projects and work as I prepare for software internships.
+# Watson752 Portfolio
+
+This is my personal portfolio website where I showcase my software engineering projects, technical skills, and experience.
+
+I’m a Software Engineering student at Carleton University, and I use this site to present selected work in areas like artificial intelligence, machine learning, data systems, and full-stack web development.
+
+The goal of this website is to act as a central hub for my projects and make it easy for recruiters and collaborators to view my work.
+
+Live site: https://watson752.github.io
+GitHub: https://github.com/Watson752
