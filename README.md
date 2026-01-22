@@ -1,12 +1,10 @@
-# React + Vite
+# Watson752 Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is my personal portfolio website where I showcase my software engineering projects, technical skills, and experience.
 
-Currently, two official plugins are available:
+I’m a Software Engineering student at Carleton University, and I use this site to present selected work in areas like artificial intelligence, machine learning, data systems, and full-stack web development.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The goal of this website is to act as a central hub for my projects and make it easy for recruiters and collaborators to view my work.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Live site: https://watson752.github.io
+GitHub: https://github.com/Watson752
