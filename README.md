@@ -7,4 +7,5 @@ I’m a Software Engineering student at Carleton University, and I use this site
 The goal of this website is to act as a central hub for my projects and make it easy for recruiters and collaborators to view my work.
 
 Live site: https://watson752.github.io
+
 GitHub: https://github.com/Watson752
