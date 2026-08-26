@@ -38,8 +38,7 @@ export function QuerySuggestions({
                   "hover:border-border hover:bg-surface-elevated hover:text-foreground",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/35",
                   "max-w-[min(100%,16rem)] sm:max-w-none",
-                  isActive &&
-                    "border-accent-cyan/30 bg-accent-cyan/6 text-foreground glow-accent-cyan",
+                  isActive && "border-border bg-surface-elevated text-foreground",
                 )}
               >
                 <span className="whitespace-nowrap sm:whitespace-normal">

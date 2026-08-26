@@ -1,30 +1,21 @@
 /**
  * Programmatic access to design tokens (mirrors CSS variables in globals.css).
- * Use for charts, Three.js, or runtime logic — prefer CSS vars in components.
+ * Prefer CSS vars/Tailwind classes in components; use this only where a raw
+ * value is unavoidable (e.g. a canvas/SVG attribute that can't take a class).
  */
 export const terminalTheme = {
   colors: {
-    background: "#08090c",
-    surface: "#14161b",
-    surfaceElevated: "#1a1d24",
-    surfaceInset: "#0e1014",
-    border: "#2a3038",
-    borderSubtle: "#1f242b",
-    foreground: "#eceff4",
-    muted: "#8b9aad",
-    accent: "#3dd6f5",
-    accentMuted: "#2a9fb8",
-    accentViolet: "#8b7cf8",
-    accentVioletMuted: "#6b5fd4",
-    success: "#4ade80",
-    warning: "#f5b942",
-  },
-  glow: {
-    cyan: "rgba(61, 214, 245, 0.1)",
-    violet: "rgba(139, 124, 248, 0.08)",
+    background: "#0a0a0a",
+    surface: "#1a1a1a",
+    surfaceElevated: "#212121",
+    surfaceInset: "#0f0f0f",
+    border: "#383838",
+    borderSubtle: "#262626",
+    foreground: "#f5f5f5",
+    muted: "#8f8f8f",
   },
   grid: {
-    line: "rgba(42, 48, 56, 0.35)",
+    line: "rgba(255, 255, 255, 0.05)",
     size: 24,
   },
   radius: {

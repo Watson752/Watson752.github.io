@@ -4,7 +4,7 @@ export {
   type StatusIndicatorProps,
   type SystemStatus,
 } from "./status-indicator";
-export { SiteStatusBar, type SiteStatusBarProps } from "./site-status-bar";
+export { SiteDock, type SiteDockProps } from "./site-dock";
 export {
   ProjectEvidencePanel,
   type ProjectEvidencePanelProps,
@@ -14,3 +14,5 @@ export {
   type ProjectEvidenceGridProps,
 } from "./project-evidence-grid";
 export { ProjectStatusReadout } from "./project-status-readout";
+export { ContactLinks } from "./contact-links";
+export { CollabForm } from "./collab-form";

@@ -18,7 +18,7 @@ const buttonVariants = cva(
           "border border-border bg-transparent text-foreground hover:bg-surface hover:border-border-subtle",
         terminal:
           "font-terminal border border-border-subtle bg-surface-inset text-[12px] text-accent-foreground hover:border-border hover:bg-surface",
-        link: "text-accent-cyan underline-offset-4 hover:underline",
+        link: "text-foreground underline-offset-4 hover:underline",
       },
       size: {
         default: "h-9 px-4 py-2",

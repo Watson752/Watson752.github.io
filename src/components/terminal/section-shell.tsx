@@ -38,7 +38,7 @@ export function SectionShell({
           <div className="min-w-0 space-y-1.5">
             {kicker && <p className="text-kicker">{kicker}</p>}
             {title && (
-              <h2 className="text-[15px] font-medium tracking-tight text-foreground">
+              <h2 className="text-xl font-medium tracking-[-0.02em] text-foreground sm:text-2xl md:text-[1.75rem] md:leading-[1.2]">
                 {title}
               </h2>
             )}

@@ -1,0 +1,22 @@
+name = "watson752-portfolio-chat"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ALLOWED_ORIGIN = "https://watson752.github.io"
+# An OpenRouter free-tier ("...:free") model slug. OpenRouter's free-model
+# roster changes over time — verify this is still live (and swap it if not)
+# at https://openrouter.ai/models?max_price=0 before deploying. Verified
+# working (clean, non-reasoning output; $0 cost) on 2026-08-26.
+MODEL = "poolside/laguna-s-2.1:free"
+
+# Native Workers rate limiting binding — per-key sliding window, no extra
+# storage needed. Verify this is GA on your account before deploying; if
+# unavailable, swap to the Workers KV fallback described in
+# src/guardrails/rateLimit.ts.
+[[unsafe.bindings]]
+name = "CHAT_RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 20, period = 60 }

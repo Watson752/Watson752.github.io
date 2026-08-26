@@ -1,4 +1,2 @@
-export { projects, projectsById, projectsBySlug } from "./projects";
-export { skills, skillsById } from "./skills";
+export { notes, notesById, notesBySlug, projectNotes } from "./notes";
 export { graphNodes, graphEdges, graphNodesById } from "./graph";
-export { queryPresets, defaultQueryResponse } from "./queries";

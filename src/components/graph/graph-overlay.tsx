@@ -26,7 +26,7 @@ export function GraphOverlay({
       )}
     >
       <div className="titlebar-chrome flex items-center justify-between gap-2 px-3 py-2 sm:px-3.5">
-        <TerminalBadge variant="accent">zettelkasten.graph</TerminalBadge>
+        <TerminalBadge variant="emphasis">notes.graph</TerminalBadge>
         <span className="font-terminal max-w-[55%] truncate text-right text-[10px] text-muted-foreground">
           {subtitle ?? "knowledge map"}
         </span>

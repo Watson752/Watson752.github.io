@@ -1,42 +1,23 @@
-import type { GraphNode, GraphNodeType } from "@/types/portfolio";
-import { terminalTheme } from "@/lib/theme/tokens";
+import type { GraphNode } from "@/types/portfolio";
 
 export type NodeVisualState = "active" | "dim" | "hovered" | "selected";
 
-const typeRadius: Record<GraphNodeType, number> = {
-  domain: 0.13,
-  skill: 0.095,
-  project: 0.105,
-  tool: 0.08,
-  idea: 0.088,
-};
+const MIN_RADIUS = 5;
+const MAX_RADIUS = 15;
 
-export function getNodeRadius(type: GraphNodeType, state: NodeVisualState): number {
-  const base = typeRadius[type];
-  if (state === "hovered" || state === "selected") return base * 1.18;
-  return base;
+/** Node radius scales with its connection count (degree), not its type. */
+export function getNodeRadius(
+  degree: number,
+  maxDegree: number,
+  state: NodeVisualState,
+): number {
+  const t = maxDegree > 0 ? degree / maxDegree : 0;
+  const base = MIN_RADIUS + t * (MAX_RADIUS - MIN_RADIUS);
+  return state === "hovered" || state === "selected" ? base * 1.2 : base;
 }
 
-export function getNodeColors(
-  type: GraphNodeType,
-  state: NodeVisualState,
-): { color: string; emissive: string; emissiveIntensity: number; opacity: number } {
-  const palette = {
-    domain: { base: "#5a6a7d", active: terminalTheme.colors.accent, emissive: "#1a7a8f" },
-    skill: { base: "#4d5a6a", active: terminalTheme.colors.accent, emissive: "#1a7a8f" },
-    project: { base: "#566078", active: "#9bb4d4", emissive: terminalTheme.colors.accentVioletMuted },
-    tool: { base: "#454f5c", active: terminalTheme.colors.accentViolet, emissive: "#4a3f8f" },
-    idea: { base: "#4a5360", active: terminalTheme.colors.accentViolet, emissive: "#5a4fb8" },
-  }[type];
-
-  const isLit = state === "active" || state === "hovered" || state === "selected";
-
-  return {
-    color: isLit ? palette.active : palette.base,
-    emissive: isLit ? palette.emissive : "#000000",
-    emissiveIntensity: isLit ? (state === "selected" ? 0.85 : 0.55) : 0,
-    opacity: isLit ? 1 : 0.38,
-  };
+export function getNodeOpacity(state: NodeVisualState): number {
+  return state === "dim" ? 0.35 : 1;
 }
 
 export function getEdgeOpacity(
@@ -45,13 +26,61 @@ export function getEdgeOpacity(
   hovered: boolean,
 ): number {
   if (hovered) return 0.7;
-  if (sourceActive && targetActive) return 0.55;
-  if (sourceActive || targetActive) return 0.32;
+  if (sourceActive && targetActive) return 0.5;
+  if (sourceActive || targetActive) return 0.28;
   return 0.12;
 }
+
+/** 3D scene scale applied to the whole node/edge group in graph-scene-3d.tsx. */
+export const SCENE_SCALE = 1.15;
 
 export function nodeToPosition(node: GraphNode): [number, number, number] {
   return [node.position.x, node.position.y, node.position.z];
 }
 
-export const SCENE_SCALE = 1.15;
+const MIN_RADIUS_3D = 0.09;
+const MAX_RADIUS_3D = 0.22;
+
+export type Node3DVisuals = {
+  color: string;
+  emissive: string;
+  emissiveIntensity: number;
+  opacity: number;
+  radius: number;
+};
+
+/** Neutral node color — nodes read as white by default; domain color is reserved
+ *  for when a node is actually being highlighted (its domain is filtered in,
+ *  or it's hovered/selected). */
+const NEUTRAL_NODE_HEX = "#f5f5f5";
+
+/**
+ * Sphere size/lighting for a graph node. Nodes are white at rest; they only
+ * take on their domain's color when `domainHighlighted` is true (the
+ * legend's domain filter matches this node) or the node is hovered/selected.
+ * Edges carry the domain coloring unconditionally — see GraphEdgeLine.
+ */
+export function getNode3DVisuals(
+  domainHex: string,
+  degree: number,
+  maxDegree: number,
+  state: NodeVisualState,
+  domainHighlighted: boolean,
+): Node3DVisuals {
+  const t = maxDegree > 0 ? degree / maxDegree : 0;
+  const base = MIN_RADIUS_3D + t * (MAX_RADIUS_3D - MIN_RADIUS_3D);
+  const radius = state === "hovered" || state === "selected" ? base * 1.2 : base;
+  const emissiveIntensity =
+    state === "selected" ? 0.85 : state === "hovered" ? 0.65 : state === "active" ? 0.4 : 0;
+
+  const showDomainColor = domainHighlighted || state === "hovered" || state === "selected";
+  const color = showDomainColor ? domainHex : NEUTRAL_NODE_HEX;
+
+  return {
+    color,
+    emissive: showDomainColor ? domainHex : "#000000",
+    emissiveIntensity: showDomainColor ? emissiveIntensity : 0,
+    opacity: state === "dim" ? 0.35 : 1,
+    radius,
+  };
+}

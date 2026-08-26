@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { projects, projectsBySlug } from "@/data/projects";
+import { notesBySlug, projectNotes } from "@/data/notes";
 import { ProjectDetailChrome } from "@/components/project/project-detail-chrome";
 import type { Metadata } from "next";
 
@@ -8,26 +8,24 @@ type PageProps = {
 };
 
 export function generateStaticParams() {
-  return projects.map((project) => ({ slug: project.slug }));
+  return projectNotes.map((project) => ({ slug: project.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = projectsBySlug[slug];
-  if (!project) return { title: "Project not found" };
+  const project = notesBySlug[slug];
+  if (!project || project.type !== "project") return { title: "Project not found" };
   return {
     title: `${project.title} — Portfolio Terminal`,
-    description: project.shortDescription,
+    description: project.summary,
   };
 }
 
 export default async function ProjectDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const project = projectsBySlug[slug];
+  const project = notesBySlug[slug];
 
-  if (!project) {
+  if (!project || project.type !== "project") {
     notFound();
   }
 

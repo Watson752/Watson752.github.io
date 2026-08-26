@@ -37,7 +37,9 @@ export default function RootLayout({
       className={`${fontSans.variable} ${fontMono.variable} dark`}
       suppressHydrationWarning
     >
-      <body className="overflow-x-hidden">{children}</body>
+      <body className="overflow-x-hidden">
+        {children}
+      </body>
     </html>
   );
 }

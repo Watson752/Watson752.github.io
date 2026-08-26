@@ -18,7 +18,7 @@ export function StackReadout({ stack, className }: StackReadoutProps) {
             key={item}
             className="font-terminal flex items-center gap-2 text-[11px] text-foreground/90"
           >
-            <span className="text-accent-cyan/70">
+            <span className="text-muted-foreground">
               {String(index + 1).padStart(2, "0")}
             </span>
             <span>{item}</span>

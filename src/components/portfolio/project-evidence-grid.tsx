@@ -5,10 +5,10 @@ import {
   sortProjectsForEvidence,
 } from "@/lib/project-evidence";
 import { cn } from "@/lib/utils";
-import type { DomainCategory, Project } from "@/types/portfolio";
+import type { DomainCategory, Note } from "@/types/portfolio";
 
 export type ProjectEvidenceGridProps = {
-  projects: Project[];
+  projects: Note[];
   activeProjectIds: string[];
   activeDomains: DomainCategory[];
   query: string;
@@ -22,18 +22,23 @@ export function ProjectEvidenceGrid({
   query,
   className,
 }: ProjectEvidenceGridProps) {
-  const hasSelection = hasEvidenceSelection(
-    query,
-    activeProjectIds,
-    activeDomains,
-  );
+  const hasSelection = hasEvidenceSelection(query, activeProjectIds, activeDomains);
 
-  const ranked = sortProjectsForEvidence(
-    projects,
-    activeProjectIds,
-    activeDomains,
-    hasSelection,
-  );
+  const ranked = sortProjectsForEvidence(projects, activeProjectIds, activeDomains, hasSelection);
+
+  if (projects.length === 0) {
+    return (
+      <div className={cn("state-empty", className)}>
+        <p className="font-terminal mb-1.5 text-[10px] text-foreground/70">
+          no published notes yet
+        </p>
+        <p>
+          Write a project note in <code>vault/public/projects/</code> with{" "}
+          <code>publish: true</code>, then run <code>npm run export:vault</code>.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div

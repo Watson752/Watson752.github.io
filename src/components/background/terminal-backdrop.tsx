@@ -6,13 +6,13 @@ export type TerminalBackdropProps = {
 };
 
 /**
- * Near-black base with faint grid and restrained radial glow.
+ * Near-black base with a faint grid — no glow.
  */
 export function TerminalBackdrop({ className, children }: TerminalBackdropProps) {
   return (
     <div
       className={cn(
-        "relative min-h-dvh w-full max-w-[100vw] overflow-x-hidden bg-terminal-grid bg-terminal-glow",
+        "relative min-h-dvh w-full max-w-[100vw] overflow-x-hidden bg-terminal-grid",
         className,
       )}
       aria-hidden={children ? undefined : true}

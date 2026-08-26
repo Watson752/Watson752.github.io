@@ -18,8 +18,8 @@ const statusConfig: Record<
   },
   busy: {
     label: "system busy",
-    dot: "bg-accent-cyan shadow-[0_0_8px_hsl(var(--accent-cyan)/0.45)]",
-    text: "text-accent-cyan",
+    dot: "bg-foreground",
+    text: "text-foreground",
   },
 };
 

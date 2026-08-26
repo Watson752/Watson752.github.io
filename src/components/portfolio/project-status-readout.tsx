@@ -11,11 +11,11 @@ const statusConfig: Record<
   },
   "in-progress": {
     label: "in-progress",
-    className: "border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan",
+    className: "border-warning/30 bg-warning/10 text-warning",
   },
   experiment: {
     label: "experiment",
-    className: "border-accent-violet/30 bg-accent-violet/10 text-accent-violet",
+    className: "border-border bg-surface-elevated text-foreground/75",
   },
   archived: {
     label: "archived",

@@ -1,0 +1,258 @@
+[
+  {
+    "id": "bco_lead_automation",
+    "slug": "bco_lead_automation",
+    "title": "BCO Lead Automation",
+    "type": "project",
+    "domains": [
+      "Cloud",
+      "Data Analytics"
+    ],
+    "tags": [
+      "n8n",
+      "automation",
+      "lead-generation",
+      "builders-collective-ottawa"
+    ],
+    "summary": "An n8n + Apify pipeline that scrapes Ottawa tech-company directories and Google Maps into a scored lead list for Builders Collective Ottawa sponsorship outreach.",
+    "html": "<h2>Overview</h2>\n<p>A lead-generation automation pipeline built for Builders Collective Ottawa (BCO), a\ncommunity/sponsorship-driven org, to build a scored list of Ottawa-area tech companies\nworth approaching for sponsorship. It's not a web app — it's a self-hosted n8n instance\norchestrating scraper actors that feed a shared Google Sheet.</p>\n<h2>Problem</h2>\n<p>Finding and qualifying sponsorship-worthy tech companies in Ottawa by hand — checking\nmember directories, searching maps by category, cross-referencing who's already been\ncontacted — doesn't scale past a handful of leads at a time. (draft — confirm) The goal\nwas an automated first pass that builds a deduplicated, scored candidate list, leaving\nthe human judgment (relevance, sponsorship capacity, personalized outreach) for after\nthe raw list exists.</p>\n<h2>What I built</h2>\n<ul>\n<li>A self-hosted n8n instance (Docker Compose, forked from a local n8n template) running\ntwo workflows on manual triggers</li>\n<li><strong>Directory scraper workflow</strong>: pulls the Kanata North Business Association member\ndirectory, Invest Ottawa's company list, and the Ottawa Board of Trade tech directory\nvia Apify actors, normalizes results, and appends them to a <code>Raw - Directories</code> sheet</li>\n<li><strong>Google Maps scraper workflow</strong>: runs 6 category searches (software, AI,\ncybersecurity, cloud, telecom, robotics) via an Apify Google Maps actor, capped at 20\nresults each (~120 max) with contact enrichment/reviews/images deliberately disabled\nto control Apify's per-result cost, appending to <code>Raw - Google Maps</code></li>\n<li>Both workflows dedupe and upsert into a shared <code>Master Leads</code> sheet using a\n<code>Dedup Key</code>, with manual scoring columns (BCO Relevance, Sponsorship Capacity, Ottawa\nPresence, Community Signal → Priority Score) for a human to fill in afterward</li>\n<li>A GCP project holding the service account/OAuth credentials and IAM permissions that\nlet n8n read and write the shared Google Sheet</li>\n<li><strong>BCO Leads 2.0</strong>: a Claude Code–built enrichment pass on top of the raw V1 scrape —\nper-company contact emails, personalization hooks, and outreach-status tracking,\ncovering the KNBA and Invest Ottawa lead sets</li>\n<li>The V1 n8n workflows themselves were built with Claude and Cursor as AI\npair-programmers for the workflow/config authoring</li>\n</ul>\n<h2>Architecture</h2>\n<p>n8n (Docker Compose, port 5678, persistent <code>n8n_data</code> volume) is the orchestration\nlayer. Each workflow calls out to Apify actors via HTTP request nodes — one hitting a\ngeneral web-scraper actor against directory pages, the other hitting a Google Maps\nscraper actor — using <code>APIFY_TOKEN</code>. Results are normalized in n8n, filtered\n(directory results by tech keywords; maps results by category), and written to Google\nSheets (<code>BCO_GOOGLE_SHEET_ID</code>) via upsert nodes keyed on a computed dedup key. Access to\nthat sheet is governed by a GCP project — service account credentials and IAM\npermissions scoped to the Sheets API — rather than a personal Google account, so\nread/write access to <code>Master Leads</code> can be managed and revoked independently of any\none person's login. Both workflows are manually triggered, not scheduled — this is a\nrun-on-demand pipeline, not a fully autonomous one.</p>\n<p><strong>Currently two disconnected halves:</strong> the checked-in <code>SETUP_README.md</code> is explicit that\nthis V1 pipeline does <em>not</em> find individual employees, enrich contact details, draft\nemails, or send outreach. A separate folder in the repo (<code>Recovered KNBA and Invest Ottawa files/</code>) does contain exactly that — contact emails, personalization hooks,\noutreach status per company — produced by BCO Leads 2.0, a Claude Code–driven\nenrichment pass run independently of the n8n workflows. The scraping automation (V1)\nand the enrichment work (2.0) aren't wired together into one pipeline yet.</p>\n<h2>Decisions</h2>\n<ul>\n<li><strong>n8n + Apify over a custom scraper</strong> — (draft — confirm) let the pipeline reuse\nbattle-tested scraper actors (web + Google Maps) instead of writing and maintaining\nscraping/anti-bot logic from scratch, at the cost of Apify's per-run pricing.</li>\n<li><strong>Manual triggers over a schedule</strong> — (draft — confirm) kept the pipeline run-on-demand\nwhile still validating the approach, rather than scheduling runs before knowing the\ndata was actually useful.</li>\n<li><strong>Capping Google Maps results and disabling enrichment per search</strong> — a deliberate\ncost control: 20 results × 6 categories keeps the Apify bill predictable while still\ngiving broad category coverage.</li>\n</ul>\n<h2>Results</h2>\n<p>A working, repeatable pipeline that produces a deduplicated <code>Master Leads</code> sheet from\ntwo independent sources (member directories + Google Maps), ready for manual scoring.\n(draft — confirm actual lead counts / how many have been contacted so far)</p>\n<h2>What I learned</h2>\n<ul>\n<li>Splitting \"find candidates\" from \"qualify and personalize\" into separate stages made\nit possible to ship the scraping half without having solved contact-enrichment yet.\n(draft — confirm)</li>\n<li>Deliberately disabling expensive Apify enrichment options up front (reviews, images,\ncontact details) kept early iteration cheap while the workflow shape was still\nchanging. (draft — confirm)</li>\n</ul>\n<h2>What's next</h2>\n<ul>\n<li>Connect BCO Leads 2.0's Claude Code enrichment pass back into the automated V1\npipeline so scraping and enrichment run as one flow</li>\n<li>Consider moving from manual triggers to a schedule once the workflow shape is settled</li>\n</ul>",
+    "links": [],
+    "updated": "2026-08-22",
+    "status": "in-progress",
+    "stack": [
+      "n8n",
+      "Docker Compose",
+      "Apify",
+      "Google Sheets",
+      "Google Cloud Platform",
+      "Claude Code"
+    ],
+    "externalLinks": {
+      "repo": "https://github.com/Watson752/BCO_Automation"
+    }
+  },
+  {
+    "id": "brain_tumor_detection",
+    "slug": "brain_tumor_detection",
+    "title": "Brain Tumor Detection Model",
+    "type": "project",
+    "domains": [
+      "AI/ML",
+      "Data Analytics"
+    ],
+    "tags": [
+      "computer-vision",
+      "medical-imaging",
+      "deep-learning"
+    ],
+    "summary": "A CNN that classifies glioma vs. healthy brain MRI slices, with Grad-CAM heatmaps so the prediction is explainable, not just a label.",
+    "html": "<h2>Overview</h2>\n<p>A deep learning pipeline that classifies MRI slices as glioma vs. healthy, trained on\nthe UCSF-PDGM collection from The Cancer Imaging Archive (TCIA). (draft — confirm) The\nproject isn't just a classifier: it also produces Grad-CAM heatmaps so a prediction\ncomes with a visual explanation of which region of the brain drove it, rather than a\nbare label.</p>\n<h2>Problem</h2>\n<p>Tumor screening from MRI is slow and reviewer-dependent, and a black-box classifier\nthat just outputs \"glioma\" or \"healthy\" isn't trustworthy enough to reason about —\nthere's no way to check <em>why</em> the model thinks what it thinks. (draft — confirm) The\ngoal was a model that's both accurate and inspectable.</p>\n<h2>What I built</h2>\n<ul>\n<li>A CNN image classifier trained on central MRI slices extracted from DICOM/NIfTI\nvolumes (<code>data_prep.py</code>, <code>make_dataset.py</code>)</li>\n<li>A training pipeline with data augmentation for robustness and automatic\nbest-checkpoint saving (<code>train.py</code>, <code>model.py</code>)</li>\n<li>An evaluation pass reporting precision, recall, F1, and a precision–recall curve\n(<code>evaluate.py</code>)</li>\n<li>Grad-CAM heatmap generation to visualize which brain regions influenced each\nprediction (<code>grad_cam.py</code>)</li>\n</ul>\n<h2>Architecture</h2>\n<p>Raw MRI volumes (DICOM/NIfTI) go through <code>data_prep.py</code>, which extracts central slices\nand converts them into NumPy arrays (<code>X.npy</code>/<code>y.npy</code>). <code>train.py</code> loads those arrays,\ndoes a stratified 70/15/15 train/val/test split, and fits a CNN:</p>\n<ul>\n<li>3 conv blocks (32 → 64 → 128 filters, 3×3, ReLU, same padding) each followed by\n2×2 max-pooling, over a single-channel 224×224 input</li>\n<li>Flatten → Dense(128, ReLU) → Dropout(0.5) → Dense(1, sigmoid) for binary\nglioma-vs-healthy output</li>\n<li>Adam optimizer (lr 1e-4), binary crossentropy, trained up to 40 epochs with\n<code>EarlyStopping</code> (patience 5 on val_loss) and <code>ModelCheckpoint</code> saving the best\nweights to <code>models/best_model.h5</code></li>\n<li>Light augmentation on the training set only: ±10° rotation, 5% width/height shift,\n10% zoom, horizontal flip; batch size 16</li>\n</ul>\n<p><code>evaluate.py</code> and <code>grad_cam.py</code> both load a saved checkpoint — one to score it against\nthe held-out test split, the other to render heatmaps for individual predictions.</p>\n<h2>Decisions</h2>\n<ul>\n<li><strong>Central-slice extraction over full 3D volumes</strong> — trades some spatial context for a\nmuch smaller, faster-to-train 2D CNN (single-channel 224×224 input) than a volumetric\nmodel would need, which mattered more for a first working version than squeezing out\nvolumetric accuracy.</li>\n<li><strong>A deliberately simple 3-block CNN over a pretrained backbone</strong> — (draft — confirm)\nkept the model small and fast to iterate on for a first version, at the cost of\nwhatever accuracy a transfer-learned backbone might have added.</li>\n<li><strong>Grad-CAM instead of a plain classifier</strong> — treats interpretability as a first-class\nrequirement rather than an afterthought, since a medical-imaging prediction without a\n\"why\" is hard to trust or debug.</li>\n</ul>\n<h2>Results</h2>\n<p>Evaluation reports precision, recall, F1-score, and a precision–recall curve on the\nheld-out test split (see <code>evaluate.py</code> output for exact numbers — not captured in this\nnote). (draft — confirm actual metrics)</p>\n<h2>What I learned</h2>\n<ul>\n<li>Interpretability tooling (Grad-CAM) is worth building alongside the model, not bolted\non after — it changed how I debugged misclassifications during training.</li>\n<li>Medical imaging formats (DICOM/NIfTI) need real preprocessing discipline before they're\nusable as flat training arrays. (draft — confirm)</li>\n</ul>\n<h2>Future improvements</h2>\n<ul>\n<li>Multi-modal MRI input (T1, T1-CE, T2, FLAIR) instead of a single sequence</li>\n<li>3D CNN models trained on full MRI volumes instead of central slices</li>\n<li>Clinical label prediction (e.g. IDH mutation status)</li>\n</ul>",
+    "links": [],
+    "updated": "2026-08-22",
+    "status": "shipped",
+    "stack": [
+      "Python",
+      "TensorFlow/Keras",
+      "OpenCV",
+      "scikit-learn",
+      "pandas",
+      "NumPy",
+      "pydicom",
+      "nibabel",
+      "Matplotlib"
+    ],
+    "externalLinks": {
+      "repo": "https://github.com/Watson752/AI_Detection_Model"
+    }
+  },
+  {
+    "id": "cra_audit_knowledge_retrieval",
+    "slug": "cra_audit_knowledge_retrieval",
+    "title": "CRA Audit Knowledge Retrieval",
+    "type": "project",
+    "domains": [
+      "AI/ML",
+      "Data Analytics"
+    ],
+    "tags": [
+      "retrieval",
+      "obsidian-vault",
+      "embeddings",
+      "evaluation"
+    ],
+    "summary": "The retrieval foundation (semantic + keyword + graph) for a planned future RAG system over a hand-curated vault of CRA audit-methodology notes — not yet shipped; generation is still to come.",
+    "html": "<h2>Overview</h2>\n<p>A work-in-progress project to build a RAG (retrieval-augmented generation)\nsystem over a hand-curated knowledge base of Canada Revenue Agency (CRA) audit\nmethodology: organization structure, audit-methodology practices, statistics,\nsoftware-controls, risk-control frameworks, and 6 public audit/evaluation case studies,\nsourced from official canada.ca documentation rather than any forum or community\ncontent. <strong>Current state: retrieval foundation only, not shipped</strong> — the hybrid\nretrieval layer (semantic + keyword + graph) is built and evaluated, but the generation\nstep that would make this a complete RAG system hasn't been built yet; today a query\nreturns ranked, explained source notes, not a synthesized answer. It's also worth being\nupfront that the retrieval code (<code>rag/</code>, <code>eval/</code>) is currently local-only and not yet\npushed to the public GitHub repo, which today only reflects the earlier vault-content\ncommits.</p>\n<h2>Problem</h2>\n<p>Public CRA audit documentation is comprehensive but scattered across many separate\nofficial pages and methodology documents — finding the right source note for a specific\naudit question means either already knowing where to look or manually searching each\nsource. (draft — confirm) The goal was a retrieval layer that could surface the most\nrelevant, properly-sourced notes for a question, with a transparent explanation of <em>why</em>\neach result was ranked where it was — not a black-box answer, since audit findings need\nto be traceable to their source.</p>\n<h2>What I built</h2>\n<ul>\n<li>A hand-curated Obsidian vault of ~444 markdown notes (~289 substantive, ~155\ninfrastructure/index notes) organized into numbered folders (<code>00-Start</code> through\n<code>99-Sources</code>), each source note carrying YAML frontmatter with <code>source_url</code>,\n<code>publisher</code>, and <code>accessed_on</code> pointing back to the originating canada.ca page</li>\n<li><code>corpus.py</code> / <code>chunking.py</code>: walk the vault and split notes into retrieval-sized\nchunks</li>\n<li><code>embeddings.py</code>: embed chunks locally with <code>sentence-transformers/all-MiniLM-L6-v2</code>\n(no API key or per-call cost) into a flat NumPy array used directly as the vector\nstore — no external vector DB service</li>\n<li><code>lexical.py</code>: a parallel BM25 keyword index (<code>rank-bm25</code>) for exact-term matching\nsemantic search can miss</li>\n<li><code>graph.py</code>: a <code>networkx</code> graph built from the vault's own note-to-note wikilinks\n(Obsidian-style double-bracket links between notes), used for n-hop graph-proximity\nexpansion</li>\n<li><code>retrieve.py</code>: blends semantic similarity, BM25 score, graph proximity, and an\nauthoritative-source bonus into one weighted hybrid score, with a <code>why_included</code>\nexplanation attached to every result</li>\n<li>A CLI (<code>python -m rag.cli {index|search|stats}</code>) as the only interface — no web UI or\nchat interface yet</li>\n<li>A real evaluation harness (<code>eval/retrieval_eval.py</code>, <code>eval/questions.json</code> — 10\nhand-written Q&#x26;A pairs with expected notes) computing Hit@1/3/5, Recall@5/10, and MRR\nacross multiple retrieval modes</li>\n</ul>\n<h2>Architecture</h2>\n<p>Vault markdown (<code>vault/public/...</code>-style folder structure, curated by hand) →\n<code>corpus.py</code>/<code>chunking.py</code> build chunked documents → <code>embeddings.py</code> produces a local\nNumPy embedding matrix (<code>rag_data/embeddings.npy</code>) while <code>lexical.py</code> builds a BM25\nindex (<code>rag_data/lexical_bm25.pkl</code>) and <code>graph.py</code> builds a wikilink graph\n(<code>rag_data/graph.json</code>) in parallel. <code>retrieve.py</code> queries all three signals plus a\nsource-authority bonus and combines them into a single ranked, explained result list,\nexposed only via the CLI. No LLM is called anywhere in the pipeline.</p>\n<h2>Decisions</h2>\n<ul>\n<li><strong>Local embeddings over an API-based embedding model</strong> — <code>sentence-transformers</code>\nrunning locally means no per-query cost and no external dependency, at the cost of\nlower embedding quality than a larger hosted model.</li>\n<li><strong>A flat NumPy array over a dedicated vector database</strong> — (draft — confirm) reasonable\nat the current corpus size (~289 substantive notes); would need revisiting if the\ncorpus grew by an order of magnitude.</li>\n<li><strong>Hybrid retrieval (semantic + BM25 + graph) over semantic search alone</strong> — combines\nwhat embeddings are good at (conceptual similarity) with what BM25 is good at (exact\nterm matches embeddings can miss) and what the graph adds (notes the author explicitly\nlinked as related), rather than betting on one signal.</li>\n<li><strong>Building and proving out retrieval before generation</strong> — the plan is a full RAG\nsystem, but getting hybrid retrieval right first (and evaluating it) means the\neventual generation step will be grounded in results already shown to be accurate,\nrather than layering an LLM on top of unproven retrieval over audit-sensitive\ncontent.</li>\n</ul>\n<h2>Results</h2>\n<p>On the 10-question hand-written eval set, the hybrid_graph retrieval mode reaches\nHit@1 = 0.9 and MRR = 0.91 — strong on this small set, but 10 questions is not a\nstatistically robust benchmark and shouldn't be read as a general accuracy number.</p>\n<h2>What I learned</h2>\n<ul>\n<li>Building the eval harness alongside the retrieval pipeline (rather than after) made it\npossible to actually compare hybrid vs. single-signal retrieval modes with real\nnumbers instead of eyeballing results. (draft — confirm)</li>\n<li>Combining three different retrieval signals (semantic, lexical, graph) surfaced\nresults that no single signal would have ranked as highly on its own. (draft —\nconfirm with a concrete example)</li>\n</ul>\n<h2>What's next</h2>\n<ul>\n<li>Build the generation layer on top of this retrieval foundation — an LLM that answers\na question using the retrieved, source-traceable notes as grounding — to complete the\nplanned RAG implementation</li>\n<li>Commit the <code>rag/</code> and <code>eval/</code> retrieval code so the public repo reflects the actual\ncurrent state of the project</li>\n<li>Grow the eval question set beyond 10 questions for a more robust accuracy signal</li>\n</ul>",
+    "links": [],
+    "updated": "2026-08-22",
+    "status": "in-progress",
+    "stack": [
+      "Python",
+      "sentence-transformers",
+      "NumPy",
+      "rank-bm25",
+      "networkx"
+    ],
+    "externalLinks": {
+      "repo": "https://github.com/Watson752/CRA-IA-Knowledge-MVP"
+    }
+  },
+  {
+    "id": "eco_intelligence_dashboard",
+    "slug": "eco_intelligence_dashboard",
+    "title": "Eco Intelligence Dashboard",
+    "type": "project",
+    "domains": [
+      "UI/UX",
+      "Full Stack"
+    ],
+    "tags": [
+      "hackathon",
+      "technatahack24",
+      "dashboard",
+      "tailadmin"
+    ],
+    "summary": "A Next.js admin dashboard, based on the open-source TailAdmin template, built for TechnataHack24 to monitor router activity, energy savings, and heat management.",
+    "html": "<h2>Overview</h2>\n<p>The frontend of Eco Intelligence, built for the TechnataHack24 hackathon: intended as a\ndashboard giving IT administrators a real-time view of router activity, energy savings,\nand heat/thermal management, per the project README. <strong>Important caveat (draft —\nconfirm/rewrite):</strong> the committed code in this repo is substantially the stock\n<a href=\"https://tailadmin.com/\">TailAdmin</a> free Next.js admin dashboard template — the repo\ncarries TailAdmin's own screenshot (<code>tailadmin-nextjs.jpg</code>) and an IDE module file named\n<code>free-nextjs-admin-dashboard.iml</code>, and the homepage (<code>src/app/page.tsx</code>) still renders a\ngeneric <code>&#x3C;ECommerce /></code> component under the title \"Eco-Intelligence - User Dashboard\"\nrather than router/energy-specific widgets. No GSAP dependency or usage exists anywhere\nin the codebase despite the README mentioning it (the actual animation library is\nFramer Motion), and no <code>axios</code>/<code>fetch</code> calls to a backend API were found in the pages\nsearched. This note is written from the README's stated intent — please correct\nwhichever parts describe the template's default state rather than what was actually\ncustomized for the hackathon (e.g. was a real router/energy dashboard built on top of\nthis scaffold elsewhere, or is this repo's committed state the full extent of it?).</p>\n<h2>Problem</h2>\n<p>IT infrastructure teams don't have a simple, live view of how much energy their network\nhardware is actually consuming, or when equipment is running hot — so energy waste and\noverheating both go unnoticed until they're expensive. (draft — confirm; this is the\nREADME's stated problem, not verified against custom code in this repo)</p>\n<h2>What I built</h2>\n<ul>\n<li>Scaffolded a Next.js admin dashboard from the TailAdmin template as the starting\npoint for an IT energy/heat monitoring tool</li>\n<li>(draft — confirm) Router activity, energy-saving estimates, and heat management\nviews — described in the README but not found as distinct components in this repo's\ncommitted source; may have been built elsewhere, planned but not finished, or since\nremoved</li>\n<li>Chart-driven views (ApexCharts, already part of the TailAdmin base) available for\npresenting time-series data</li>\n<li>Animated, responsive UI via Framer Motion</li>\n</ul>\n<h2>Architecture</h2>\n<p>Next.js (App Router) frontend styled with Tailwind CSS, charting via <code>react-apexcharts</code>,\ntransitions via Framer Motion — the TailAdmin template's standard stack. The README\ndescribes a REST API connection to a separate backend serving router status and\nenergy/heat predictions, but no such integration was found in the pages searched in this\nrepo. (draft — confirm actual data source, if any is wired up)</p>\n<h2>Decisions</h2>\n<ul>\n<li><strong>TailAdmin as a starting scaffold over a from-scratch dashboard</strong> — (draft — confirm)\nlet the team get a polished, chart-ready admin UI in place immediately under hackathon\ntime pressure, rather than spending hackathon hours on dashboard-shell plumbing.</li>\n</ul>\n<h2>Results</h2>\n<p>Submitted for TechnataHack24. (draft — confirm what was actually demoed/judged, given\nthe gap between the README's description and this repo's committed state, and any\nplacement/award results)</p>\n<h2>What I learned</h2>\n<ul>\n<li>(draft — fill in once the actual scope of what was built/demoed is confirmed)</li>\n</ul>",
+    "links": [],
+    "updated": "2026-08-22",
+    "status": "shipped",
+    "stack": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "ApexCharts",
+      "Framer Motion"
+    ],
+    "externalLinks": {
+      "repo": "https://github.com/Watson752/Eco-Intelligence-dashboard-TechnataHack24"
+    }
+  },
+  {
+    "id": "happy_hour_in_my_city",
+    "slug": "happy_hour_in_my_city",
+    "title": "Happy Hour In My City",
+    "type": "project",
+    "domains": [
+      "Full Stack",
+      "UI/UX"
+    ],
+    "tags": [
+      "local-discovery",
+      "maps",
+      "small-business"
+    ],
+    "summary": "A restaurant happy-hour discovery site — browse deals, filter on a map, and (eventually) manage listings as a business owner.",
+    "html": "<h2>Overview</h2>\n<p>Happy Hour In My City (happyhourinmycity.com) is a restaurant happy-hour discovery\nsite: browse and filter deals by location on a map, with a directory of participating\nbusinesses. It's built as a Next.js app with a public-facing consumer product that's\nreal and live, plus an early-stage owner/admin management layer.</p>\n<h2>Problem</h2>\n<p>Happy hour deals are scattered across individual restaurant sites and social posts —\nthere's no single place to discover what's on, where, and when, filtered by location.\n(draft — confirm) The goal was a directory-and-map product where a diner could find\nnearby deals at a glance, and eventually where a restaurant owner could self-manage\ntheir own listing instead of relying on someone else to keep it current.</p>\n<h2>What I built</h2>\n<ul>\n<li>A public discovery experience: home page with hero, listings, and a map section, plus\n<code>/about</code>, <code>/mission</code>, <code>/faq</code> (split into user and business FAQs), <code>/join-restaurant</code>,\nand <code>/recommend</code> for growing the directory</li>\n<li>Auth and account flows (<code>/login</code>, <code>/signup</code>) backed by Supabase, with role-gating\nmiddleware that checks a <code>profiles</code> table (<code>role</code>, <code>approval_status</code>, <code>business_id</code>)\nto protect <code>/owner/*</code> and <code>/admin/*</code> routes</li>\n<li>An Airtable-backed content API (<code>/businesses</code>) pulling Businesses/Offers/Recurring\nRules tables, with a 343-line local mock-data fallback so the app still runs without\nAirtable credentials in dev</li>\n<li>Map display via <code>@vis.gl/react-google-maps</code>, with geocoding routed through the free\nNominatim API instead of paid Google Geocoding to control cost</li>\n<li>Legal/support pages (<code>/disclaimer</code>, <code>/privacy</code>, <code>/terms</code>), an offline PWA fallback\npage, and Capacitor scaffolding for a future native app wrapper (not yet initialized)</li>\n<li>PostHog and Vercel Analytics wired in for usage tracking</li>\n</ul>\n<h2>Architecture</h2>\n<p>Next.js 16 (App Router, Turbopack) with Tailwind v4 and shadcn/radix-ui components.\nContent lives in Airtable rather than a traditional database — the <code>/businesses</code> API\nroute fetches Businesses/Offers/Recurring Rules via Airtable's REST API using\n<code>AIRTABLE_BASE_ID</code>/<code>TABLE_NAME</code>/<code>TOKEN</code>, falling back to bundled mock data when those\nenv vars are absent (dev-friendly, but a hard error in production if missing). Supabase\nhandles auth and session state (<code>@supabase/ssr</code>), with middleware gating owner/admin\nroutes based on a <code>profiles</code> table. Map rendering uses the Google Maps JS API, but\ngeocoding (converting addresses to coordinates) deliberately goes through free\nNominatim rather than Google's paid geocoding endpoint.</p>\n<p><strong>Currently incomplete:</strong> despite the role-gating middleware being fully built for\n<code>/owner/dashboard</code>, <code>/owner/pending-approval</code>, and <code>/admin/dashboard</code>, the dashboard\npages themselves are still 9-line stub pages — a heading and one sentence, no actual\nmanagement UI yet.</p>\n<h2>Decisions</h2>\n<ul>\n<li><strong>Airtable over a traditional database for content</strong> — (draft — confirm) lets\nnon-technical people (or the founder without touching code) edit business/offer data\ndirectly in a spreadsheet-like tool, at the cost of a REST round-trip and Airtable's\nown rate limits.</li>\n<li><strong>Nominatim over paid Google Geocoding</strong> — a deliberate cost-avoidance choice: the\nGoogle Maps key is scoped to JS map display only, keeping the app's per-request cost\ndown while it's pre-revenue.</li>\n<li><strong>Building the role-gating middleware before the dashboards it protects</strong> — sets up\nthe access-control contract (who can see <code>/owner/*</code> and <code>/admin/*</code>) ahead of time, so\nthe dashboard UI can be built directly against a working permission system rather than\nretrofitting auth later.</li>\n</ul>\n<h2>Results</h2>\n<p>Live public-facing site with real discovery, business-directory, and account flows;\nhappyhourinmycity.com and its <code>register.</code> subdomain appear as active links across the\nsite and social channels (Instagram/TikTok <code>@happyhourinmycity</code>). (draft — confirm\ntraffic/usage numbers, if any worth citing)</p>\n<h2>What I learned</h2>\n<ul>\n<li>Scoping paid APIs carefully (Google Maps for display only, free Nominatim for\ngeocoding) matters a lot for a pre-revenue local-discovery product where per-request\ncost adds up fast at scale. (draft — confirm)</li>\n<li>Building the permission layer (Supabase role/approval gating) ahead of the UI it\nprotects made it a clear, testable contract rather than something bolted on after the\ndashboards existed. (draft — confirm)</li>\n</ul>\n<h2>What's next</h2>\n<ul>\n<li>Build out the actual owner and admin dashboard UI — currently placeholder pages\ndespite the access-control layer being ready</li>\n<li>Decide on and resolve the static-export vs. server-route conflict blocking Capacitor\nnative app packaging</li>\n</ul>",
+    "links": [],
+    "updated": "2026-08-22",
+    "status": "shipped",
+    "stack": [
+      "Next.js 16",
+      "React 19",
+      "Tailwind CSS v4",
+      "shadcn/radix-ui",
+      "Supabase",
+      "Airtable",
+      "Google Maps JS API",
+      "Nominatim",
+      "PostHog",
+      "Vercel Analytics"
+    ],
+    "externalLinks": {
+      "repo": "https://github.com/Watson752/ATJ_Consulting_Repo_main"
+    }
+  },
+  {
+    "id": "nse_stock_tracker",
+    "slug": "nse_stock_tracker",
+    "title": "NSE Stock Tracker",
+    "type": "project",
+    "domains": [
+      "Data Analytics",
+      "Full Stack"
+    ],
+    "tags": [
+      "streamlit",
+      "fintech",
+      "high-school-project"
+    ],
+    "summary": "A Streamlit app for exploring NSE (Indian exchange) stocks live — pricing, financials, and news pulled through the Yahoo Finance API.",
+    "html": "<h2>Overview</h2>\n<p>An interactive stock market tracker for NSE (National Stock Exchange, India) stocks,\nbuilt with Streamlit and the Yahoo Finance API (<code>yfinance</code>). Co-built with Mark Allen\nwhile in grade XII at Arsha Vidya Mandir — one of the earliest real projects I shipped.</p>\n<h2>Problem</h2>\n<p>Understanding a stock's full picture (price history, financials, holders, analyst\nopinion, news) usually means jumping between several different tools and sites. The\ngoal was one interface where picking a ticker gives access to all of that in one place,\nbuilt to be understandable by people who aren't already market experts.</p>\n<h2>What I built</h2>\n<ul>\n<li>A ticker selector pulling the live NSE F&#x26;O stock list, feeding ~17 selectable\nfeatures: stock summary, general info, historical data, price/volume plots, a\ncalculator, major holders, balance sheet, cash flow, earnings, financials, actions,\nsustainability, analyst recommendations, earnings calendar, and latest news</li>\n<li>Interactive price/volume charts (Plotly) with a configurable timeframe (from 1-minute\nto 3-month periods)</li>\n<li>CSV export of any pulled dataset</li>\n<li>A basic username/password login and sign-up module (SQLite-backed) gating access to\nthe sidebar</li>\n<li>A HTML-embedded navbar linking out to a companion YouTube playlist teaching stock\nmarket basics, aimed at the same beginner audience</li>\n</ul>\n<h2>Architecture</h2>\n<p>A single Streamlit app (<code>Stock_Market_Tracker_Original.py</code>) drives the whole experience:\na sidebar ticker selector and feature selector, both backed by live calls to\n<code>yfinance.Ticker(...)</code>. Selected data is rendered through <code>pandas</code>/Plotly directly in\nthe page. A separate <code>About.py</code> Streamlit page carries the project's own writeup. A\nSQLite database (<code>acc.db</code>, via <code>sqlite3</code>) backs a simple <code>userdetails</code> table\n(username/password) for login and sign-up, checked against <code>st.sidebar.button(\"Login\")</code>\n/ <code>st.sidebar.button(\"Sign Up\")</code>.</p>\n<h2>Decisions</h2>\n<ul>\n<li><strong>AlphaVantage → Yahoo Finance for data</strong> — AlphaVantage's free tier gated most of the\ninteresting data behind a paywall; Yahoo Finance was free and unrestricted, so we\nswitched early once that became clear.</li>\n<li><strong>Tkinter → Streamlit for the UI</strong> — Tkinter's learning curve and verbosity for even\nsimple widgets made it a poor fit for two beginners; Streamlit replaced it (and\nabsorbed what Matplotlib/pandas were doing for visualization) with far less code and a\nmuch shorter path to a working UI.</li>\n</ul>\n<h2>Results</h2>\n<p>A working, deployable Streamlit app covering the full range of stock research features\nlisted above, live against real NSE market data. (draft — confirm any deployment/usage\nnumbers)</p>\n<h2>What I learned</h2>\n<ul>\n<li>Picking the right tool early (Streamlit over Tkinter, Yahoo Finance over AlphaVantage)\nmattered more than pushing through with the first choice — both pivots came from\nhitting a real wall, not from over-planning upfront.</li>\n<li>This was an early lesson in scoping: a \"track everything about a stock\" feature list\nis easy to say and a lot of surface area to actually build. (draft — confirm)</li>\n</ul>",
+    "links": [],
+    "updated": "2026-08-22",
+    "status": "shipped",
+    "stack": [
+      "Python",
+      "Streamlit",
+      "yfinance",
+      "pandas",
+      "Plotly",
+      "SQLite"
+    ],
+    "externalLinks": {
+      "repo": "https://github.com/Watson752/NSE-Stock-Tracker"
+    }
+  },
+  {
+    "id": "route_optimizer",
+    "slug": "route_optimizer",
+    "title": "Route Optimizer",
+    "type": "project",
+    "domains": [
+      "Full Stack",
+      "Cloud",
+      "UI/UX"
+    ],
+    "tags": [
+      "hackathon",
+      "uottahacks7",
+      "maps"
+    ],
+    "summary": "A real-time route optimization app with a live traffic map, an AI chat assistant, and Solace-powered live messaging — built for Uottahacks7.",
+    "html": "<h2>Overview</h2>\n<p>A route optimization app built at Uottahacks7: a live map interface showing routes and\ntraffic markers, an LLM-backed recommendation engine (Groq) that reasons about a route's\ntraffic conditions, and a Solace PubSub+ connection that keeps the client aware of its\nreal-time connection status for live updates.</p>\n<h2>Problem</h2>\n<p>Standard route-planning UIs show a route but not why it's a good one, and they don't\nadapt cleanly to live traffic conditions changing mid-trip. The goal was a route\noptimizer that treats traffic as a live signal driving the route, not a one-time input,\nand gives the user a conversational way to ask about it. (draft — confirm)</p>\n<h2>What I built</h2>\n<ul>\n<li>An interactive map (Leaflet) rendering routes and live traffic markers (<code>Map.tsx</code>,\n<code>RouteMarkers.tsx</code>, <code>TrafficMarker.tsx</code>)</li>\n<li>A route panel presenting the optimized path and its details (<code>RoutePanel.tsx</code>)</li>\n<li>An embedded chatbot widget for conversational trip assistance (<code>ChatBotWidget.css</code>,\n<code>chatbot</code> edge function)</li>\n<li>A <code>useSolaceConnection</code> hook (<code>SolaceConnection.tsx</code>) that manages the Solace PubSub+\nconnection lifecycle client-side and surfaces connect/error state via toast\nnotifications, backed by a <code>get-solace-config</code> edge function that hands the client its\nconnection config</li>\n<li>A Supabase edge function (<code>optimize-route</code>) that sends the current route and traffic\ndata to Groq's <code>mixtral-8x7b-32768</code> model and returns structured recommendations\n(alternative routes, expected delay severity, weather impact), with a safe default\nresponse if the Groq call fails</li>\n</ul>\n<h2>Architecture</h2>\n<p>React (Vite + TypeScript) frontend, styled with Tailwind and shadcn-ui, rendering the\nmap via Leaflet. Three Supabase edge functions provide the backend: <code>optimize-route</code>\nbuilds a prompt from the route/traffic payload and calls the Groq chat completions API\nfor recommendations, <code>get-solace-config</code> hands the client its Solace connection config,\nand <code>chatbot</code> serves the AI assistant. On the client, <code>useSolaceConnection</code> establishes\nand monitors the Solace connection so the UI can reflect real-time connectivity state.</p>\n<h2>Decisions</h2>\n<ul>\n<li><strong>Supabase Edge Functions over a standalone backend</strong> — (draft — confirm) kept the\nwhole stack deployable from one place under hackathon time pressure, without standing\nup separate backend infrastructure.</li>\n<li><strong>An LLM (Groq) for route recommendations instead of a hand-written optimization\nalgorithm</strong> — turns route/traffic data into natural-language-derived recommendations\n(alternatives, delay severity, weather impact) without building a routing/optimization\nengine from scratch, at the cost of recommendations being only as reliable as the\nmodel's parsing of its own prompt response.</li>\n<li><strong>A safe fallback response when the Groq call fails or times out</strong> — the edge function\nalways returns a 200 with a default recommendation rather than surfacing an error to\nthe user, prioritizing a working demo over surfacing failures.</li>\n</ul>\n<h2>Results</h2>\n<p>Shipped as a working demo for Uottahacks7 combining live map routing, an LLM-driven\nrecommendation engine, and Solace-backed real-time connectivity in one app. (draft —\nconfirm placement/award results)</p>\n<h2>What I learned</h2>\n<ul>\n<li>Prompting an LLM for structured output (route alternatives, delay severity, weather\nimpact) and then parsing that back out of free text is fragile — the edge function's\nfallback logic exists because that parsing can't be fully trusted. (draft — confirm)</li>\n<li>Wiring a pub/sub layer (Solace) into a frontend app was new territory compared to\ntypical request/response APIs, and changed how the UI had to be structured to react to\nconnection-state changes rather than just fetch results. (draft — confirm)</li>\n</ul>",
+    "links": [],
+    "updated": "2026-08-22",
+    "status": "shipped",
+    "stack": [
+      "React",
+      "TypeScript",
+      "Vite",
+      "Tailwind CSS",
+      "shadcn-ui",
+      "Leaflet",
+      "Supabase Edge Functions",
+      "Solace PubSub+"
+    ],
+    "externalLinks": {
+      "repo": "https://github.com/Watson752/Uottahacks7-route-optimizer"
+    }
+  },
+  {
+    "id": "tax_complexity_dashboard",
+    "slug": "tax_complexity_dashboard",
+    "title": "International Tax Administration Complexity Dashboard",
+    "type": "project",
+    "domains": [
+      "Data Analytics"
+    ],
+    "tags": [
+      "power-bi",
+      "public-data",
+      "world-bank"
+    ],
+    "summary": "A Power BI dashboard ranking tax administration burden across economies, built on a custom weighted score derived from World Bank Doing Business indicators.",
+    "html": "<h2>Overview</h2>\n<p>A data analytics project comparing tax compliance burden across international\neconomies, built entirely on public World Bank Doing Business \"Paying Taxes\" data. Python\nand pandas clean, merge, and score the raw indicators; Power BI turns the result into a\ncomparative, rankable dashboard.</p>\n<h2>Problem</h2>\n<p>Tax compliance burden varies a lot by jurisdiction — some economies demand more filing\ntime, more separate payments per year, or a higher total tax rate — but there was no\nsingle transparent, reproducible score that combined those three signals into one\nranking. The project answers: <em>which economies in the dataset appear to have the most\ncomplex tax administration burden, based on public World Bank indicators?</em></p>\n<h2>What I built</h2>\n<ul>\n<li>A cleaning pipeline (<code>merge_and_clean.py</code>) that pulls three separate World Bank CSVs\n(<code>PAY.TAX.TM</code>, <code>PAY.TAX.PYMT.FREQ.NO</code>, <code>PAY.TAX.TOT.TAX.RT.ZS</code>), extracts the 2019\ncolumn from each, and merges them into one analytical dataset</li>\n<li>Min-max normalization of each indicator into comparable 0–100 sub-scores\n(<code>time_score</code>, <code>payments_score</code>, <code>tax_rate_score</code>) in <code>scoring.py</code></li>\n<li>A weighted composite <strong>Tax Complexity Score</strong>:\n<code>0.40 * time_score + 0.30 * payments_score + 0.30 * tax_rate_score</code></li>\n<li>Classification of economies into complexity bands based on that score</li>\n<li>A Power BI dashboard for ranking, comparison, and stakeholder-facing visualization</li>\n</ul>\n<h2>Architecture</h2>\n<p>Three raw World Bank CSVs → <code>merge_and_clean.py</code> (pandas: select the 2019 column from\neach, inner-join on country, coerce numeric types, drop missing rows) →\n<code>data/processed/tax_complexity_dashboard_ready.csv</code> → <code>scoring.py</code> (min-max\nnormalization + weighted composite score + banding into Low/Medium/High/Very High) →\nthe processed CSV feeds a Power BI <code>.pbix</code> dashboard for the final visual layer.</p>\n<h2>Decisions</h2>\n<ul>\n<li><strong>A transparent weighted formula over a black-box model</strong> — the 40/30/30 weighting is\nvisible and adjustable, which matters for a dashboard meant to be defensible to\nstakeholders, not just accurate.</li>\n<li><strong>Min-max normalization per indicator before combining</strong> — the three raw indicators\nare on incompatible scales (hours, count, percent), so each is rescaled to 0–100\nbefore the composite score is computed, keeping any one indicator from dominating by\nscale alone.</li>\n</ul>\n<h2>Results</h2>\n<p>Produces a ranked, banded comparison of tax administration complexity across every\neconomy with complete 2019 data on all three indicators, visualized in an interactive\nPower BI dashboard (see <code>images/dashboard_preview.png</code> in the repo). In the processed\noutput, Venezuela ranks highest at a complexity score of 63.5 (\"High\" band, driven by a\n100/100 payments-frequency score); no economy in the dataset reaches the \"Very High\"\nband (75+).</p>\n<h2>What I learned</h2>\n<ul>\n<li>A single composite score is only as trustworthy as its weighting is explainable —\nkeeping the formula simple and visible mattered more than squeezing out marginal\naccuracy. (draft — confirm)</li>\n<li>Working from three independently-sourced World Bank CSVs surfaced real messiness\n(missing years, inconsistent coverage) that a clean single dataset wouldn't have — the\npipeline settles on a single fixed year (2019) across all three rather than each\nindicator's own latest year, which keeps the comparison apples-to-apples but means the\ndashboard isn't automatically current. (draft — confirm whether a rolling \"latest\nyear\" version is worth building)</li>\n</ul>",
+    "links": [],
+    "updated": "2026-08-22",
+    "status": "shipped",
+    "stack": [
+      "Python",
+      "pandas",
+      "Power BI"
+    ],
+    "externalLinks": {
+      "repo": "https://github.com/Watson752/International_tax_complexity_board"
+    }
+  }
+]

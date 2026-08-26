@@ -6,14 +6,9 @@ const terminalBadgeVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "border-border-subtle bg-surface/80 text-muted-foreground",
-        accent:
-          "border-accent-cyan/20 bg-accent-cyan/6 text-accent-cyan",
-        violet:
-          "border-accent-violet/20 bg-accent-violet/6 text-accent-violet",
-        muted:
-          "border-border-subtle/60 bg-surface-inset text-titlebar-foreground",
+        default: "border-border-subtle bg-surface/80 text-muted-foreground",
+        emphasis: "border-border bg-surface-elevated text-foreground",
+        muted: "border-border-subtle/60 bg-surface-inset text-titlebar-foreground",
       },
     },
     defaultVariants: {

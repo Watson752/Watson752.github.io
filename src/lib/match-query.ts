@@ -1,22 +1,6 @@
 import { graphEdges, graphNodes, graphNodesById } from "@/data/graph";
-import { projects } from "@/data/projects";
-import { defaultQueryResponse, queryPresets } from "@/data/queries";
-import { skills } from "@/data/skills";
-import type {
-  DomainCategory,
-  GraphNode,
-  QueryMatch,
-  QueryPreset,
-} from "@/types/portfolio";
-
-const DOMAIN_LABELS: Record<DomainCategory, string> = {
-  ai: "AI",
-  backend: "Backend",
-  data: "Data",
-  frontend: "Frontend",
-  platform: "Platform",
-  leadership: "Leadership",
-};
+import { notes } from "@/data/notes";
+import type { DomainCategory, GraphNode, NoteType, QueryMatch } from "@/types/portfolio";
 
 function normalize(text: string): string {
   return text.trim().toLowerCase().replace(/\s+/g, " ");
@@ -40,95 +24,41 @@ function scoreKeywordHits(query: string, keywords: string[]): number {
   return score;
 }
 
-function findPreset(query: string): QueryPreset | undefined {
-  const exact = queryPresets.find(
-    (preset) =>
-      normalize(preset.query) === query || normalize(preset.label) === query,
-  );
-  if (exact) return exact;
-
-  let best: QueryPreset | undefined;
-  let bestScore = 0;
-
-  for (const preset of queryPresets) {
-    const terms = [
-      preset.label,
-      preset.query,
-      ...(preset.keywords ?? []),
-    ];
-    const score = scoreKeywordHits(query, terms);
-    if (score > bestScore) {
-      bestScore = score;
-      best = preset;
-    }
-  }
-
-  return bestScore >= 2 ? best : undefined;
-}
-
 type ScoredNode = { node: GraphNode; score: number };
 
 function scoreGraphNodes(query: string): ScoredNode[] {
   return graphNodes
     .map((node) => ({
       node,
+      score: scoreKeywordHits(query, [...node.keywords, node.label, node.id, node.category]),
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
+}
+
+function scoreNotes(query: string) {
+  return notes
+    .map((note) => ({
+      note,
       score: scoreKeywordHits(query, [
-        ...node.keywords,
-        node.label,
-        node.id,
-        node.category,
+        note.title,
+        note.summary,
+        note.slug,
+        ...note.domains,
+        ...note.tags,
+        ...(note.stack ?? []),
       ]),
     }))
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score);
 }
 
-function scoreProjects(query: string) {
-  return projects
-    .map((project) => {
-      const score = scoreKeywordHits(query, [
-        project.title,
-        project.shortDescription,
-        project.slug,
-        ...project.domains,
-        ...project.stack,
-        ...project.signals,
-        ...Object.keys(project.metrics),
-        ...Object.values(project.metrics),
-      ]);
-      return { project, score };
-    })
-    .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score);
-}
-
-function scoreSkills(query: string) {
-  return skills
-    .map((skill) => ({
-      skill,
-      score: scoreKeywordHits(query, [
-        skill.name,
-        skill.description,
-        skill.category,
-        skill.id,
-      ]),
-    }))
-    .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score);
-}
-
-function expandGraphNodesFromProjects(projectIds: string[]): string[] {
+function expandGraphNodesFromProjects(projectSlugs: string[]): string[] {
   const ids = new Set<string>();
   for (const node of graphNodes) {
-    if (node.relatedProjectIds.some((id) => projectIds.includes(id))) {
+    if (node.relatedProjectIds.some((id) => projectSlugs.includes(id))) {
       ids.add(node.id);
     }
-  }
-  for (const projectId of projectIds) {
-    const projectNode = graphNodes.find(
-      (n) => n.type === "project" && n.relatedProjectIds.includes(projectId),
-    );
-    if (projectNode) ids.add(projectNode.id);
   }
   return [...ids];
 }
@@ -136,42 +66,29 @@ function expandGraphNodesFromProjects(projectIds: string[]): string[] {
 function domainsFromGraphNodes(nodeIds: string[]): DomainCategory[] {
   return unique(
     nodeIds
-      .map((id) => graphNodes.find((n) => n.id === id)?.category)
+      .map((id) => graphNodesById[id]?.category)
       .filter((c): c is DomainCategory => c != null),
   );
 }
 
-function buildKeywordResponse(
+function buildResponse(
   domains: DomainCategory[],
-  projectIds: string[],
+  projectSlugs: string[],
   topNodes: ScoredNode[],
-  topSkills: ReturnType<typeof scoreSkills>,
 ): string {
-  const domainText =
-    domains.length > 0
-      ? domains.map((d) => DOMAIN_LABELS[d]).join(", ")
-      : "general";
+  const domainText = domains.length > 0 ? domains.join(", ") : "general";
 
-  const projectTitles = projectIds
-    .map((id) => projects.find((p) => p.id === id)?.title)
+  const projectTitles = projectSlugs
+    .map((slug) => notes.find((n) => n.slug === slug)?.title)
     .filter(Boolean)
     .slice(0, 3);
 
-  const skillNames = topSkills.slice(0, 2).map((s) => s.skill.name);
   const nodeLabels = topNodes.slice(0, 3).map((n) => n.node.label);
 
-  const parts: string[] = [
-    `Matched context: ${domainText}.`,
-  ];
+  const parts: string[] = [`Matched context: ${domainText}.`];
 
   if (projectTitles.length > 0) {
-    parts.push(
-      `Relevant projects: ${projectTitles.join(", ")}.`,
-    );
-  }
-
-  if (skillNames.length > 0) {
-    parts.push(`Skills surfaced: ${skillNames.join(", ")}.`);
+    parts.push(`Relevant projects: ${projectTitles.join(", ")}.`);
   }
 
   if (nodeLabels.length > 0) {
@@ -181,8 +98,15 @@ function buildKeywordResponse(
   return parts.join(" ");
 }
 
+const NO_NOTES_RESPONSE =
+  "No published notes yet. Once real vault notes go live (npm run export:vault), queries will match against them here.";
+
+const NO_MATCH_RESPONSE =
+  "No strong match. Try a domain name (e.g. AI/ML, Full Stack) or keywords from a project.";
+
 /**
- * Deterministic local query matcher — no LLM, DB, or vector search.
+ * Deterministic local query matcher — no LLM, DB, or vector search. Scores
+ * free text against published vault notes and graph nodes only.
  */
 export function matchQuery(rawQuery: string): QueryMatch {
   const query = normalize(rawQuery);
@@ -193,72 +117,40 @@ export function matchQuery(rawQuery: string): QueryMatch {
       matchedDomains: [],
       matchedProjectIds: [],
       matchedGraphNodeIds: [],
-      response:
-        "Enter a question about projects, domains, or skills—then press Enter.",
+      response: "Enter a question about projects or domains—then press Enter.",
       confidence: "default",
     };
   }
 
-  const preset = findPreset(query);
-  if (preset) {
-    const graphIds = unique([
-      ...expandGraphNodesFromProjects(preset.matchedProjects),
-      ...graphNodes
-        .filter(
-          (n) =>
-            n.type === "domain" &&
-            preset.matchedDomains.includes(n.category),
-        )
-        .map((n) => n.id),
-    ]);
-
-    return {
-      query: rawQuery,
-      matchedDomains: preset.matchedDomains,
-      matchedProjectIds: preset.matchedProjects,
-      matchedGraphNodeIds: graphIds,
-      response: preset.response,
-      confidence: "preset",
-      presetId: preset.id,
-    };
-  }
-
   const scoredNodes = scoreGraphNodes(query);
-  const scoredProjects = scoreProjects(query);
-  const scoredSkills = scoreSkills(query);
+  const scoredNotes = scoreNotes(query);
 
-  const projectIds = unique([
-    ...scoredProjects.slice(0, 4).map((e) => e.project.id),
-    ...scoredSkills.flatMap((e) => e.skill.relatedProjects),
-  ]);
+  const projectSlugs = unique(
+    scoredNotes
+      .filter((entry) => entry.note.type === "project")
+      .slice(0, 4)
+      .map((entry) => entry.note.slug),
+  );
 
   const graphNodeIds = unique([
-    ...scoredNodes.slice(0, 6).map((e) => e.node.id),
-    ...expandGraphNodesFromProjects(projectIds),
+    ...scoredNodes.slice(0, 6).map((entry) => entry.node.id),
+    ...expandGraphNodesFromProjects(projectSlugs),
   ]);
 
   const domains = unique([
     ...domainsFromGraphNodes(graphNodeIds),
-    ...scoredProjects.flatMap((e) => e.project.domains),
-    ...scoredSkills.map((e) => e.skill.category),
+    ...scoredNotes.flatMap((entry) => entry.note.domains),
   ]);
 
-  const hasSignal =
-    projectIds.length > 0 ||
-    graphNodeIds.length > 0 ||
-    domains.length > 0;
+  const hasSignal = projectSlugs.length > 0 || graphNodeIds.length > 0 || domains.length > 0;
 
   if (!hasSignal) {
-    const featured = projects.filter((p) => p.featured).map((p) => p.id);
-    const fallbackDomains: DomainCategory[] = ["ai", "backend", "frontend"];
     return {
       query: rawQuery,
-      matchedDomains: fallbackDomains,
-      matchedProjectIds: featured.slice(0, 3),
-      matchedGraphNodeIds: graphNodes
-        .filter((n) => n.type === "domain" && fallbackDomains.includes(n.category))
-        .map((n) => n.id),
-      response: defaultQueryResponse,
+      matchedDomains: [],
+      matchedProjectIds: [],
+      matchedGraphNodeIds: [],
+      response: notes.length === 0 ? NO_NOTES_RESPONSE : NO_MATCH_RESPONSE,
       confidence: "default",
     };
   }
@@ -266,29 +158,18 @@ export function matchQuery(rawQuery: string): QueryMatch {
   return {
     query: rawQuery,
     matchedDomains: domains,
-    matchedProjectIds: projectIds.slice(0, 4),
+    matchedProjectIds: projectSlugs,
     matchedGraphNodeIds: graphNodeIds,
-    response: buildKeywordResponse(
-      domains,
-      projectIds,
-      scoredNodes,
-      scoredSkills,
-    ),
+    response: buildResponse(domains, projectSlugs, scoredNodes),
     confidence: "keyword",
   };
 }
 
-function domainNodeId(category: DomainCategory): string {
-  const map: Record<DomainCategory, string> = {
-    ai: "domain-ai",
-    backend: "domain-backend",
-    data: "domain-data",
-    frontend: "domain-frontend",
-    platform: "domain-platform",
-    leadership: "domain-leadership",
-  };
-  return map[category];
-}
+const NODE_TYPE_COPY: Record<NoteType, string> = {
+  project: "Focused on {label}. See evidence cards below for stack and case study.",
+  note: "{label} — a published note. Related items are highlighted in the graph.",
+  role: "{label} — a role/position. Related projects and domains are surfaced for review.",
+};
 
 /** Focus portfolio state from a graph node click */
 export function matchFromGraphNode(nodeId: string): QueryMatch {
@@ -306,29 +187,14 @@ export function matchFromGraphNode(nodeId: string): QueryMatch {
 
   const neighborIds = graphEdges
     .filter((e) => e.source === nodeId || e.target === nodeId)
-    .flatMap((e) => (e.source === nodeId ? e.target : e.source));
+    .map((e) => (e.source === nodeId ? e.target : e.source));
 
-  const matchedGraphNodeIds = unique([
-    nodeId,
-    domainNodeId(node.category),
-    ...neighborIds.slice(0, 5),
-  ]);
+  const matchedGraphNodeIds = unique([nodeId, ...neighborIds.slice(0, 6)]);
 
   const matchedProjectIds = unique([
     ...node.relatedProjectIds,
-    ...neighborIds
-      .map((id) => graphNodesById[id])
-      .filter(Boolean)
-      .flatMap((n) => n.relatedProjectIds),
+    ...neighborIds.flatMap((id) => graphNodesById[id]?.relatedProjectIds ?? []),
   ]).slice(0, 4);
-
-  const typeCopy: Record<GraphNode["type"], string> = {
-    domain: `Exploring the ${node.label} domain—connected skills, tools, and evidence are highlighted in the graph and project row.`,
-    skill: `${node.label} is a core skill area. Related projects and domains are surfaced for review.`,
-    project: `Focused on ${node.label}. See evidence cards for stack, signals, and outcomes.`,
-    tool: `${node.label} appears across selected projects—useful context for how systems are built.`,
-    idea: `${node.label} is a product/UX concept tied to frontend work—see the terminal portfolio for the implementation direction.`,
-  };
 
   return {
     query: node.label,
@@ -340,7 +206,7 @@ export function matchFromGraphNode(nodeId: string): QueryMatch {
     ]),
     matchedProjectIds,
     matchedGraphNodeIds,
-    response: typeCopy[node.type],
+    response: NODE_TYPE_COPY[node.type].replace("{label}", node.label),
     confidence: "keyword",
   };
 }

@@ -1,44 +1,45 @@
 "use client";
 
 import { Panel } from "@/components/terminal/panel";
+import { DomainBadge } from "@/components/portfolio/domain-badge";
 import { TerminalBadge } from "@/components/portfolio/terminal-badge";
 import { cn } from "@/lib/utils";
-import type { PortfolioSelectionSource, QueryMatch } from "@/types/portfolio";
+import type { CommandResult, PortfolioSelectionSource, QueryMatch } from "@/types/portfolio";
 
 export type AIResponsePanelProps = {
   match: QueryMatch | null;
+  commandResult?: CommandResult | null;
   displayQuery: string;
   hasSelection: boolean;
   responseKey: string;
   className?: string;
   isThinking?: boolean;
+  aiError?: string | null;
   selectionSource?: PortfolioSelectionSource;
 };
 
 const confidenceLabels: Record<QueryMatch["confidence"], string> = {
-  preset: "match: preset",
   keyword: "match: keyword",
   default: "match: fallback",
+  ai: "match: ai",
 };
 
 export function AIResponsePanel({
   match,
+  commandResult,
   displayQuery,
   hasSelection,
   responseKey,
   className,
   isThinking,
+  aiError,
   selectionSource,
 }: AIResponsePanelProps) {
   return (
     <Panel
       variant="inset"
       padding="none"
-      className={cn(
-        "min-w-0 overflow-hidden",
-        hasSelection && "glow-accent-cyan",
-        className,
-      )}
+      className={cn("min-w-0 overflow-hidden", className)}
       aria-live="polite"
       aria-busy={isThinking}
     >
@@ -46,8 +47,8 @@ export function AIResponsePanel({
         <span className="font-terminal text-[10px] text-titlebar-foreground">
           stdout / <span className="text-foreground/75">assistant</span>
         </span>
-        <TerminalBadge variant="accent" className="normal-case tracking-normal">
-          local
+        <TerminalBadge variant="emphasis" className="normal-case tracking-normal">
+          {match?.confidence === "ai" ? "ai" : "local"}
         </TerminalBadge>
       </div>
 
@@ -59,20 +60,13 @@ export function AIResponsePanel({
             </TerminalBadge>
           )}
           {selectionSource === "graph" && (
-            <TerminalBadge variant="violet">source: graph</TerminalBadge>
+            <TerminalBadge variant="default">source: graph</TerminalBadge>
           )}
-          {hasSelection && match && match.matchedDomains.length > 0 && (
-            <TerminalBadge
-              variant="violet"
-              className="max-w-full sm:max-w-none"
-            >
-              <span className="truncate">
-                {match.matchedDomains.join(" · ")}
-              </span>
-            </TerminalBadge>
-          )}
+          {hasSelection &&
+            match &&
+            match.matchedDomains.map((domain) => <DomainBadge key={domain} domain={domain} />)}
           {hasSelection && match && match.matchedProjectIds.length > 0 && (
-            <TerminalBadge variant="accent">
+            <TerminalBadge variant="emphasis">
               {match.matchedProjectIds.length} projects
             </TerminalBadge>
           )}
@@ -80,12 +74,12 @@ export function AIResponsePanel({
 
         {isThinking ? (
           <p className="font-terminal text-sm text-muted-foreground">
-            <span className="text-accent-cyan terminal-cursor-blink">▍</span>{" "}
-            synthesizing response…
+            <span className="text-foreground terminal-cursor-blink">▍</span>{" "}
+            asking claude…
           </p>
         ) : !hasSelection ? (
           <div className="state-empty">
-            <p className="font-terminal mb-1.5 text-[10px] text-accent-cyan/80">
+            <p className="font-terminal mb-1.5 text-[10px] text-foreground/70">
               awaiting command
             </p>
             <p>
@@ -100,12 +94,28 @@ export function AIResponsePanel({
           >
             {displayQuery && (
               <p className="font-terminal break-anywhere rounded border border-border-subtle/60 bg-surface/40 px-2 py-1.5 text-[11px] text-muted-foreground">
-                <span className="text-accent-cyan">&gt;</span> {displayQuery}
+                <span className="text-foreground">&gt;</span> {displayQuery}
               </p>
             )}
-            <p className="break-anywhere text-prose-strong">
-              {match?.response}
-            </p>
+            {commandResult ? (
+              <ul className="space-y-1">
+                {commandResult.lines.map((line, index) => (
+                  <li
+                    key={index}
+                    className="font-terminal break-anywhere text-[13px] leading-[1.65] text-foreground/92"
+                  >
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="break-anywhere text-prose-strong">
+                {match?.response}
+              </p>
+            )}
+            {aiError && (
+              <p className="font-terminal text-[11px] text-muted-foreground">{aiError}</p>
+            )}
           </div>
         )}
       </div>

@@ -1,0 +1,222 @@
+{
+  "name": "Srivathsan Murali",
+  "role": "Software Engineer · AI & Data Systems",
+  "notes": [
+    {
+      "title": "BCO Lead Automation",
+      "type": "project",
+      "domains": [
+        "Cloud",
+        "Data Analytics"
+      ],
+      "tags": [
+        "n8n",
+        "automation",
+        "lead-generation",
+        "builders-collective-ottawa"
+      ],
+      "summary": "An n8n + Apify pipeline that scrapes Ottawa tech-company directories and Google Maps into a scored lead list for Builders Collective Ottawa sponsorship outreach.",
+      "stack": [
+        "n8n",
+        "Docker Compose",
+        "Apify",
+        "Google Sheets",
+        "Google Cloud Platform",
+        "Claude Code"
+      ],
+      "status": "in-progress",
+      "externalLinks": {
+        "repo": "https://github.com/Watson752/BCO_Automation"
+      }
+    },
+    {
+      "title": "Brain Tumor Detection Model",
+      "type": "project",
+      "domains": [
+        "AI/ML",
+        "Data Analytics"
+      ],
+      "tags": [
+        "computer-vision",
+        "medical-imaging",
+        "deep-learning"
+      ],
+      "summary": "A CNN that classifies glioma vs. healthy brain MRI slices, with Grad-CAM heatmaps so the prediction is explainable, not just a label.",
+      "stack": [
+        "Python",
+        "TensorFlow/Keras",
+        "OpenCV",
+        "scikit-learn",
+        "pandas",
+        "NumPy",
+        "pydicom",
+        "nibabel",
+        "Matplotlib"
+      ],
+      "status": "shipped",
+      "externalLinks": {
+        "repo": "https://github.com/Watson752/AI_Detection_Model"
+      }
+    },
+    {
+      "title": "CRA Audit Knowledge Retrieval",
+      "type": "project",
+      "domains": [
+        "AI/ML",
+        "Data Analytics"
+      ],
+      "tags": [
+        "retrieval",
+        "obsidian-vault",
+        "embeddings",
+        "evaluation"
+      ],
+      "summary": "The retrieval foundation (semantic + keyword + graph) for a planned future RAG system over a hand-curated vault of CRA audit-methodology notes — not yet shipped; generation is still to come.",
+      "stack": [
+        "Python",
+        "sentence-transformers",
+        "NumPy",
+        "rank-bm25",
+        "networkx"
+      ],
+      "status": "in-progress",
+      "externalLinks": {
+        "repo": "https://github.com/Watson752/CRA-IA-Knowledge-MVP"
+      }
+    },
+    {
+      "title": "Eco Intelligence Dashboard",
+      "type": "project",
+      "domains": [
+        "UI/UX",
+        "Full Stack"
+      ],
+      "tags": [
+        "hackathon",
+        "technatahack24",
+        "dashboard",
+        "tailadmin"
+      ],
+      "summary": "A Next.js admin dashboard, based on the open-source TailAdmin template, built for TechnataHack24 to monitor router activity, energy savings, and heat management.",
+      "stack": [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "ApexCharts",
+        "Framer Motion"
+      ],
+      "status": "shipped",
+      "externalLinks": {
+        "repo": "https://github.com/Watson752/Eco-Intelligence-dashboard-TechnataHack24"
+      }
+    },
+    {
+      "title": "Happy Hour In My City",
+      "type": "project",
+      "domains": [
+        "Full Stack",
+        "UI/UX"
+      ],
+      "tags": [
+        "local-discovery",
+        "maps",
+        "small-business"
+      ],
+      "summary": "A restaurant happy-hour discovery site — browse deals, filter on a map, and (eventually) manage listings as a business owner.",
+      "stack": [
+        "Next.js 16",
+        "React 19",
+        "Tailwind CSS v4",
+        "shadcn/radix-ui",
+        "Supabase",
+        "Airtable",
+        "Google Maps JS API",
+        "Nominatim",
+        "PostHog",
+        "Vercel Analytics"
+      ],
+      "status": "shipped",
+      "externalLinks": {
+        "repo": "https://github.com/Watson752/ATJ_Consulting_Repo_main"
+      }
+    },
+    {
+      "title": "NSE Stock Tracker",
+      "type": "project",
+      "domains": [
+        "Data Analytics",
+        "Full Stack"
+      ],
+      "tags": [
+        "streamlit",
+        "fintech",
+        "high-school-project"
+      ],
+      "summary": "A Streamlit app for exploring NSE (Indian exchange) stocks live — pricing, financials, and news pulled through the Yahoo Finance API.",
+      "stack": [
+        "Python",
+        "Streamlit",
+        "yfinance",
+        "pandas",
+        "Plotly",
+        "SQLite"
+      ],
+      "status": "shipped",
+      "externalLinks": {
+        "repo": "https://github.com/Watson752/NSE-Stock-Tracker"
+      }
+    },
+    {
+      "title": "Route Optimizer",
+      "type": "project",
+      "domains": [
+        "Full Stack",
+        "Cloud",
+        "UI/UX"
+      ],
+      "tags": [
+        "hackathon",
+        "uottahacks7",
+        "maps"
+      ],
+      "summary": "A real-time route optimization app with a live traffic map, an AI chat assistant, and Solace-powered live messaging — built for Uottahacks7.",
+      "stack": [
+        "React",
+        "TypeScript",
+        "Vite",
+        "Tailwind CSS",
+        "shadcn-ui",
+        "Leaflet",
+        "Supabase Edge Functions",
+        "Solace PubSub+"
+      ],
+      "status": "shipped",
+      "externalLinks": {
+        "repo": "https://github.com/Watson752/Uottahacks7-route-optimizer"
+      }
+    },
+    {
+      "title": "International Tax Administration Complexity Dashboard",
+      "type": "project",
+      "domains": [
+        "Data Analytics"
+      ],
+      "tags": [
+        "power-bi",
+        "public-data",
+        "world-bank"
+      ],
+      "summary": "A Power BI dashboard ranking tax administration burden across economies, built on a custom weighted score derived from World Bank Doing Business indicators.",
+      "stack": [
+        "Python",
+        "pandas",
+        "Power BI"
+      ],
+      "status": "shipped",
+      "externalLinks": {
+        "repo": "https://github.com/Watson752/International_tax_complexity_board"
+      }
+    }
+  ]
+}

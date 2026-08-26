@@ -28,6 +28,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files
+.env.local.example
 .env*.local
 
 # typescript
@@ -36,3 +37,13 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# obsidian vault (source of truth for portfolio content — never committed;
+# only src/data/generated/*.json, produced by `npm run export:vault`, ships)
+/vault/
+
+# cloudflare worker (chat backend) — local secrets and build output only;
+# ANTHROPIC_API_KEY is a wrangler secret and must never appear here
+/worker/.dev.vars
+/worker/node_modules
+/worker/.wrangler

@@ -1,0 +1,342 @@
+{
+  "nodes": [
+    {
+      "id": "bco_lead_automation",
+      "label": "BCO Lead Automation",
+      "type": "project",
+      "category": "Cloud",
+      "strength": 5,
+      "position": {
+        "x": 0.48411669207409225,
+        "y": -0.9606729300763842,
+        "z": 0
+      },
+      "relatedProjectIds": [
+        "bco_lead_automation"
+      ],
+      "keywords": [
+        "cloud",
+        "data analytics",
+        "n8n",
+        "automation",
+        "lead-generation",
+        "builders-collective-ottawa"
+      ]
+    },
+    {
+      "id": "brain_tumor_detection",
+      "label": "Brain Tumor Detection Model",
+      "type": "project",
+      "category": "AI/ML",
+      "strength": 4,
+      "position": {
+        "x": -1.3200013943684132,
+        "y": -0.9510439022064717,
+        "z": 0
+      },
+      "relatedProjectIds": [
+        "brain_tumor_detection"
+      ],
+      "keywords": [
+        "ai/ml",
+        "data analytics",
+        "computer-vision",
+        "medical-imaging",
+        "deep-learning"
+      ]
+    },
+    {
+      "id": "cra_audit_knowledge_retrieval",
+      "label": "CRA Audit Knowledge Retrieval",
+      "type": "project",
+      "category": "AI/ML",
+      "strength": 4,
+      "position": {
+        "x": -0.01829194254606467,
+        "y": -2.071399808468249,
+        "z": 0
+      },
+      "relatedProjectIds": [
+        "cra_audit_knowledge_retrieval"
+      ],
+      "keywords": [
+        "ai/ml",
+        "data analytics",
+        "retrieval",
+        "obsidian-vault",
+        "embeddings",
+        "evaluation"
+      ]
+    },
+    {
+      "id": "eco_intelligence_dashboard",
+      "label": "Eco Intelligence Dashboard",
+      "type": "project",
+      "category": "UI/UX",
+      "strength": 3,
+      "position": {
+        "x": 1.116578053625575,
+        "y": 2.4,
+        "z": 0
+      },
+      "relatedProjectIds": [
+        "eco_intelligence_dashboard"
+      ],
+      "keywords": [
+        "ui/ux",
+        "full stack",
+        "hackathon",
+        "technatahack24",
+        "dashboard",
+        "tailadmin"
+      ]
+    },
+    {
+      "id": "happy_hour_in_my_city",
+      "label": "Happy Hour In My City",
+      "type": "project",
+      "category": "Full Stack",
+      "strength": 3,
+      "position": {
+        "x": -0.1145220154840193,
+        "y": 2.31069701831321,
+        "z": 0
+      },
+      "relatedProjectIds": [
+        "happy_hour_in_my_city"
+      ],
+      "keywords": [
+        "full stack",
+        "ui/ux",
+        "local-discovery",
+        "maps",
+        "small-business"
+      ]
+    },
+    {
+      "id": "nse_stock_tracker",
+      "label": "NSE Stock Tracker",
+      "type": "project",
+      "category": "Data Analytics",
+      "strength": 7,
+      "position": {
+        "x": -0.25992559584359215,
+        "y": 0.23607016233353936,
+        "z": 0
+      },
+      "relatedProjectIds": [
+        "nse_stock_tracker"
+      ],
+      "keywords": [
+        "data analytics",
+        "full stack",
+        "streamlit",
+        "fintech",
+        "high-school-project"
+      ]
+    },
+    {
+      "id": "route_optimizer",
+      "label": "Route Optimizer",
+      "type": "project",
+      "category": "Full Stack",
+      "strength": 4,
+      "position": {
+        "x": 1.2284727705679097,
+        "y": 1.0101509318916368,
+        "z": 0
+      },
+      "relatedProjectIds": [
+        "route_optimizer"
+      ],
+      "keywords": [
+        "full stack",
+        "cloud",
+        "ui/ux",
+        "hackathon",
+        "uottahacks7",
+        "maps"
+      ]
+    },
+    {
+      "id": "tax_complexity_dashboard",
+      "label": "International Tax Administration Complexity Dashboard",
+      "type": "project",
+      "category": "Data Analytics",
+      "strength": 4,
+      "position": {
+        "x": -1.1165314724019832,
+        "y": -1.9741476586842355,
+        "z": 0
+      },
+      "relatedProjectIds": [
+        "tax_complexity_dashboard"
+      ],
+      "keywords": [
+        "data analytics",
+        "power-bi",
+        "public-data",
+        "world-bank"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "bco_lead_automation",
+      "target": "route_optimizer",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Cloud"
+      ]
+    },
+    {
+      "source": "bco_lead_automation",
+      "target": "brain_tumor_detection",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics"
+      ]
+    },
+    {
+      "source": "bco_lead_automation",
+      "target": "cra_audit_knowledge_retrieval",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics"
+      ]
+    },
+    {
+      "source": "bco_lead_automation",
+      "target": "nse_stock_tracker",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics"
+      ]
+    },
+    {
+      "source": "bco_lead_automation",
+      "target": "tax_complexity_dashboard",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics"
+      ]
+    },
+    {
+      "source": "brain_tumor_detection",
+      "target": "cra_audit_knowledge_retrieval",
+      "strength": 2,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics",
+        "AI/ML"
+      ]
+    },
+    {
+      "source": "brain_tumor_detection",
+      "target": "nse_stock_tracker",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics"
+      ]
+    },
+    {
+      "source": "brain_tumor_detection",
+      "target": "tax_complexity_dashboard",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics"
+      ]
+    },
+    {
+      "source": "cra_audit_knowledge_retrieval",
+      "target": "nse_stock_tracker",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics"
+      ]
+    },
+    {
+      "source": "cra_audit_knowledge_retrieval",
+      "target": "tax_complexity_dashboard",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics"
+      ]
+    },
+    {
+      "source": "nse_stock_tracker",
+      "target": "tax_complexity_dashboard",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Data Analytics"
+      ]
+    },
+    {
+      "source": "eco_intelligence_dashboard",
+      "target": "happy_hour_in_my_city",
+      "strength": 2,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "UI/UX",
+        "Full Stack"
+      ]
+    },
+    {
+      "source": "eco_intelligence_dashboard",
+      "target": "route_optimizer",
+      "strength": 2,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "UI/UX",
+        "Full Stack"
+      ]
+    },
+    {
+      "source": "happy_hour_in_my_city",
+      "target": "route_optimizer",
+      "strength": 2,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "UI/UX",
+        "Full Stack"
+      ]
+    },
+    {
+      "source": "eco_intelligence_dashboard",
+      "target": "nse_stock_tracker",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Full Stack"
+      ]
+    },
+    {
+      "source": "happy_hour_in_my_city",
+      "target": "nse_stock_tracker",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Full Stack"
+      ]
+    },
+    {
+      "source": "nse_stock_tracker",
+      "target": "route_optimizer",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Full Stack"
+      ]
+    }
+  ]
+}

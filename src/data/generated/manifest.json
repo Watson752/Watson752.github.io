@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-08-23T06:14:13.671Z",
+  "noteType": "project | note | role",
+  "totalCandidates": 8,
+  "publishedCount": 8,
+  "skippedPrivateCount": 0,
+  "skippedDenylistCount": 0,
+  "domainsUsed": [
+    "AI/ML",
+    "Cloud",
+    "Data Analytics",
+    "Full Stack",
+    "UI/UX"
+  ],
+  "allowlistedRoot": "public",
+  "denylistSegments": [
+    "private",
+    "drafts",
+    "draft",
+    "personal",
+    "journal"
+  ],
+  "warnings": []
+}

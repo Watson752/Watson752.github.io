@@ -1,68 +1,73 @@
 @import "tailwindcss";
 
-/* ─── Terminal portfolio design tokens (dark-only) ─── */
+/* ─── Terminal portfolio design tokens (dark-only, grayscale + domain accents) ─── */
 :root {
   color-scheme: dark;
 
-  /* Base palette — near-black editor shell */
-  --background: 222 18% 4%;
-  --foreground: 210 22% 95%;
+  /* Base palette — near-black editor shell, pure neutral (no hue tint) */
+  --background: 0 0% 4%;
+  --foreground: 0 0% 96%;
 
   /* Surfaces — VS Code / Cursor editor greys */
-  --card: 220 14% 9%;
-  --card-foreground: 210 22% 95%;
-  --popover: 220 14% 10%;
-  --popover-foreground: 210 22% 95%;
-  --surface: 220 13% 11%;
-  --surface-elevated: 220 12% 13%;
-  --surface-inset: 222 16% 6%;
+  --card: 0 0% 8%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 9%;
+  --popover-foreground: 0 0% 96%;
+  --surface: 0 0% 10%;
+  --surface-elevated: 0 0% 13%;
+  --surface-inset: 0 0% 6%;
 
-  /* Borders — thin, muted slate */
-  --border: 215 12% 22%;
-  --border-subtle: 215 10% 15%;
-  --input: 215 12% 20%;
-  --ring: 187 65% 45%;
+  /* Borders — thin, neutral grey */
+  --border: 0 0% 22%;
+  --border-subtle: 0 0% 15%;
+  --input: 0 0% 20%;
+  --ring: 0 0% 70%;
 
   /* Text hierarchy */
-  --muted: 220 12% 16%;
-  --muted-foreground: 215 12% 55%;
-  --secondary: 220 12% 14%;
-  --secondary-foreground: 210 18% 86%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 56%;
+  --secondary: 0 0% 14%;
+  --secondary-foreground: 0 0% 86%;
 
-  /* Primary actions — restrained cyan */
-  --primary: 187 65% 45%;
-  --primary-foreground: 222 18% 6%;
+  /* Primary — the single filled/high-contrast element per screen; near-white, no hue */
+  --primary: 0 0% 92%;
+  --primary-foreground: 0 0% 6%;
 
-  /* Accent pair — cyan + violet (glow sources) */
-  --accent: 220 12% 14%;
-  --accent-foreground: 187 75% 58%;
-  --accent-cyan: 187 65% 48%;
-  --accent-violet: 252 62% 65%;
+  /* Generic hover/accent surface — neutral, not a brand color */
+  --accent: 0 0% 14%;
+  --accent-foreground: 0 0% 92%;
 
-  /* Semantic — use sparingly */
-  --destructive: 0 62% 50%;
-  --destructive-foreground: 210 22% 95%;
-  --success: 142 50% 46%;
-  --success-foreground: 222 18% 6%;
-  --warning: 38 85% 50%;
-  --warning-foreground: 222 18% 6%;
+  /* Semantic — small, restrained, unrelated to the grayscale/domain-color rule (status dots only) */
+  --destructive: 0 55% 52%;
+  --destructive-foreground: 0 0% 96%;
+  --success: 142 40% 48%;
+  --success-foreground: 0 0% 6%;
+  --warning: 38 55% 52%;
+  --warning-foreground: 0 0% 6%;
 
-  /* shadcn chart slots (reserved) */
-  --chart-1: 187 65% 48%;
-  --chart-2: 252 62% 65%;
-  --chart-3: 215 12% 55%;
-  --chart-4: 142 50% 46%;
-  --chart-5: 38 85% 50%;
+  /* Domain accent palette — fixed, muted, desaturated; used ONLY on graph nodes
+     and domain badges/tags, never on structural chrome. One token per category
+     in the locked taxonomy (vault/PUBLISHING.md). */
+  --domain-ui-ux: 350 35% 62%;
+  --domain-full-stack: 212 38% 62%;
+  --domain-data-analytics: 165 30% 55%;
+  --domain-cloud: 195 35% 58%;
+  --domain-ai-ml: 268 32% 66%;
+
+  /* shadcn chart slots (reserved) — mapped to the grayscale ramp, unused for now */
+  --chart-1: 0 0% 70%;
+  --chart-2: 0 0% 58%;
+  --chart-3: 0 0% 46%;
+  --chart-4: 0 0% 34%;
+  --chart-5: 0 0% 22%;
 
   /* Radii — tight, editor-like */
   --radius: 0.375rem;
 
   /* Custom — backdrop & chrome */
-  --grid-line: 215 12% 22% / 0.14;
-  --glow-cyan: 187 65% 48% / 0.1;
-  --glow-violet: 252 62% 65% / 0.08;
-  --titlebar: 220 14% 7%;
-  --titlebar-foreground: 215 12% 50%;
+  --grid-line: 0 0% 100% / 0.05;
+  --titlebar: 0 0% 7%;
+  --titlebar-foreground: 0 0% 52%;
   --highlight-top: 0 0% 100% / 0.04;
   --shadow-panel:
     0 0 0 1px hsl(var(--border-subtle)),
@@ -72,9 +77,6 @@
     0 0 0 1px hsl(var(--border)),
     0 1px 0 0 hsl(var(--highlight-top)),
     0 16px 48px -20px rgb(0 0 0 / 0.7);
-  --shadow-glow:
-    0 0 0 1px hsl(var(--accent-cyan) / 0.12),
-    0 0 32px -8px hsl(var(--accent-cyan) / 0.18);
 }
 
 /* Tailwind v4 theme bridge (tweakcn-style token mapping) */
@@ -99,8 +101,6 @@
   --color-muted-foreground: hsl(var(--muted-foreground));
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-accent-cyan: hsl(var(--accent-cyan));
-  --color-accent-violet: hsl(var(--accent-violet));
 
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
@@ -116,6 +116,12 @@
   --color-titlebar: hsl(var(--titlebar));
   --color-titlebar-foreground: hsl(var(--titlebar-foreground));
 
+  --color-domain-ui-ux: hsl(var(--domain-ui-ux));
+  --color-domain-full-stack: hsl(var(--domain-full-stack));
+  --color-domain-data-analytics: hsl(var(--domain-data-analytics));
+  --color-domain-cloud: hsl(var(--domain-cloud));
+  --color-domain-ai-ml: hsl(var(--domain-ai-ml));
+
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, "Cascadia Code", monospace;
   --font-terminal: var(--font-mono);
@@ -127,7 +133,6 @@
 
   --shadow-panel: var(--shadow-panel);
   --shadow-elevated: var(--shadow-elevated);
-  --shadow-glow: var(--shadow-glow);
 }
 
 @layer base {
@@ -146,7 +151,7 @@
   }
 
   ::selection {
-    background: hsl(var(--accent-cyan) / 0.22);
+    background: hsl(var(--foreground) / 0.18);
     color: hsl(var(--foreground));
   }
 }
@@ -210,20 +215,6 @@
     background-position: center top;
   }
 
-  .bg-terminal-glow {
-    background-image:
-      radial-gradient(
-        ellipse 75% 45% at 10% -6%,
-        hsl(var(--glow-cyan)),
-        transparent 52%
-      ),
-      radial-gradient(
-        ellipse 65% 40% at 94% 106%,
-        hsl(var(--glow-violet)),
-        transparent 48%
-      );
-  }
-
   .titlebar-chrome {
     border-bottom: 1px solid hsl(var(--border-subtle));
     background: hsl(var(--titlebar));
@@ -237,16 +228,6 @@
 
   .shadow-elevated {
     box-shadow: var(--shadow-elevated);
-  }
-
-  .glow-accent-cyan {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .glow-accent-violet {
-    box-shadow:
-      0 0 0 1px hsl(var(--accent-violet) / 0.14),
-      0 0 24px -8px hsl(var(--accent-violet) / 0.2);
   }
 
   .input-terminal {
@@ -271,6 +252,100 @@
 
   .state-empty {
     @apply rounded-md border border-dashed border-border-subtle/80 bg-surface-inset/40 px-3 py-4 text-sm leading-[1.65] text-muted-foreground;
+  }
+
+  /* Sanitized markdown body from vault notes (scripts/vault-export) — plain
+     semantic tags, styled by hand instead of pulling in a typography plugin. */
+  .prose-note {
+    @apply text-sm leading-[1.7] text-muted-foreground;
+  }
+
+  .prose-note > :first-child {
+    margin-top: 0;
+  }
+
+  .prose-note h1,
+  .prose-note h2,
+  .prose-note h3,
+  .prose-note h4 {
+    @apply mt-6 mb-2.5 font-medium tracking-tight text-foreground first:mt-0;
+  }
+
+  .prose-note h1 {
+    @apply text-lg;
+  }
+  .prose-note h2 {
+    @apply text-base;
+  }
+  .prose-note h3,
+  .prose-note h4 {
+    @apply text-sm;
+  }
+
+  .prose-note p {
+    @apply my-3;
+  }
+
+  .prose-note ul,
+  .prose-note ol {
+    @apply my-3 space-y-1.5 pl-5;
+  }
+
+  .prose-note ul {
+    list-style: disc;
+  }
+
+  .prose-note ol {
+    list-style: decimal;
+  }
+
+  .prose-note li::marker {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .prose-note a {
+    @apply text-foreground underline decoration-border-subtle underline-offset-2 transition-colors hover:decoration-foreground;
+  }
+
+  .prose-note strong {
+    @apply font-medium text-foreground;
+  }
+
+  .prose-note code {
+    @apply font-terminal rounded border border-border-subtle bg-surface-inset px-1 py-0.5 text-[0.85em] text-foreground;
+  }
+
+  .prose-note pre {
+    @apply font-terminal my-3 overflow-x-auto rounded-md border border-border-subtle bg-surface-inset p-3 text-[0.85em] leading-relaxed;
+  }
+
+  .prose-note pre code {
+    @apply border-0 bg-transparent p-0;
+  }
+
+  .prose-note blockquote {
+    @apply my-3 border-l-2 border-border-subtle pl-3 text-muted-foreground/90 italic;
+  }
+
+  .prose-note hr {
+    @apply my-5 border-border-subtle;
+  }
+
+  .prose-note img {
+    @apply my-3 max-w-full rounded-md border border-border-subtle;
+  }
+
+  .prose-note table {
+    @apply my-3 w-full border-collapse text-left text-[0.9em];
+  }
+
+  .prose-note th,
+  .prose-note td {
+    @apply border border-border-subtle px-2 py-1.5;
+  }
+
+  .prose-note th {
+    @apply bg-surface-inset text-foreground;
   }
 
   .terminal-cursor-blink {
