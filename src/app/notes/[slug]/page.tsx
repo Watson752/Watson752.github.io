@@ -10,7 +10,10 @@ type PageProps = {
 const nonProjectNotes = notes.filter((note) => note.type !== "project");
 
 export function generateStaticParams() {
-  return nonProjectNotes.map((note) => ({ slug: note.slug }));
+  const params = nonProjectNotes.map((note) => ({ slug: note.slug }));
+  // `output: "export"` treats an empty list as a missing generateStaticParams.
+  // Keep a inert slug so the route builds when every published note is a project.
+  return params.length > 0 ? params : [{ slug: "_" }];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
