@@ -33,8 +33,8 @@ jobs:
       - name: Build static export
         run: npm run build
         env:
-          # Public URL only — set in repo Variables if the chat worker is live.
-          NEXT_PUBLIC_CHAT_WORKER_URL: ${{ vars.NEXT_PUBLIC_CHAT_WORKER_URL }}
+          # Public Worker URL (not a secret). Override via repo Variable if it changes.
+          NEXT_PUBLIC_CHAT_WORKER_URL: ${{ vars.NEXT_PUBLIC_CHAT_WORKER_URL || 'https://watson752-portfolio-chat.watson752.workers.dev/chat' }}
           NEXT_PUBLIC_EMAILJS_SERVICE_ID: ${{ vars.NEXT_PUBLIC_EMAILJS_SERVICE_ID }}
           NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: ${{ vars.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID }}
           NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: ${{ vars.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }}
