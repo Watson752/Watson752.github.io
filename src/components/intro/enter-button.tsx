@@ -25,7 +25,8 @@ export function EnterButton({ onActivate, className }: EnterButtonProps) {
         <ArrowRight className="size-4" strokeWidth={1.75} />
       </button>
       <p className="font-terminal text-[10px] uppercase tracking-[0.14em] text-white">
-        Press Enter or click to continue
+        <span className="pointer-coarse:hidden">Press Enter or click to continue</span>
+        <span className="hidden pointer-coarse:inline">Tap to continue</span>
       </p>
     </div>
   );

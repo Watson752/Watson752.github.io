@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export:vault": "tsx scripts/vault-export/index.ts"
+    "export:vault": "tsx scripts/vault-export/index.ts",
+    "watch:vault": "tsx scripts/vault-export/watch.ts",
+    "publish:vault": "tsx scripts/vault-export/publish.ts"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

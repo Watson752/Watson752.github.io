@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import { themeInitScript } from "@/lib/theme/theme";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -37,6 +38,10 @@ export default function RootLayout({
       className={`${fontSans.variable} ${fontMono.variable} dark`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Sets data-theme before first paint (saved choice, else OS preference). */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="overflow-x-hidden">
         {children}
       </body>

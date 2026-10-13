@@ -45,7 +45,7 @@ export function NoteGraph({
     () => new Set(),
   );
   const [viewMode, setViewMode] = useState<"graph" | "list">("graph");
-  const { mode: viewportMode } = useGraphViewport();
+  const { mode: viewportMode, coarsePointer } = useGraphViewport();
   const effectiveViewMode = viewportMode === "fallback" ? "list" : viewMode;
 
   const activeSet = useMemo(() => new Set(activeNodeIds), [activeNodeIds]);
@@ -161,6 +161,7 @@ export function NoteGraph({
             hoveredNodeId={hoveredNodeId}
             onHoverNode={setHoveredNodeId}
             onNodeSelect={select}
+            coarsePointer={coarsePointer}
           />
         </div>
       )}

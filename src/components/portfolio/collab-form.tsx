@@ -38,14 +38,19 @@ export function CollabForm({ className }: { className?: string }) {
     }
 
     try {
-      // Template variable names — must match the fields configured in the
-      // EmailJS template dashboard.
+      // Template variable names must match the EmailJS template dashboard.
+      // Each value is sent under both EmailJS's default "Contact Us" names
+      // (name/email/title) and the custom names, so either template works.
       await emailjs.send(
         serviceId,
         templateId,
         {
+          name,
           from_name: name,
+          email,
+          from_email: email,
           reply_to: email,
+          title: subject,
           subject,
           message,
         },
@@ -102,7 +107,7 @@ export function CollabForm({ className }: { className?: string }) {
             <span className={labelClass}>Subject</span>
             <input
               required
-              placeholder="what do you want to collab on?"
+              placeholder="what would you like to talk about?"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               aria-label="Subject"

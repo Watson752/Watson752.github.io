@@ -72,5 +72,10 @@ message rather than a generic error (see `src/lib/chat-client.ts`'s
   never logs or returns it, only uses a bucketed key for rate limiting.
 - `src/guardrails/rateLimit.ts` — wraps the Workers Rate Limiting binding
   (see `wrangler.toml` for the KV fallback if that binding isn't available).
+- `src/guardrails/usageCounter.ts` — Durable Object holding exact daily
+  counters: `DAILY_IP_LIMIT` per visitor and `DAILY_GLOBAL_LIMIT` across all
+  visitors (both in `wrangler.toml`, reset 00:00 UTC). Only requests that
+  pass validation and the input filter spend quota. Tune the global cap to
+  OpenRouter's free-tier daily allowance.
 - CORS in `src/index.ts` only allows `https://watson752.github.io` (plus
   `localhost:3000` for local dev).

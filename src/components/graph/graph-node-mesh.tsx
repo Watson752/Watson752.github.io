@@ -8,6 +8,8 @@ import type { Mesh } from "three";
 import type { GraphNode as GraphNodeData } from "@/types/portfolio";
 import { getDomainStyle } from "@/lib/domain-colors";
 import { getNode3DVisuals, type NodeVisualState } from "@/lib/graph-visual";
+import { canvasColors } from "@/lib/theme/tokens";
+import { useTheme } from "@/hooks/use-theme";
 import type { SimNode } from "@/lib/use-graph-simulation";
 
 export type GraphNodeMeshProps = {
@@ -36,6 +38,7 @@ export function GraphNodeMesh({
   onDragStart,
 }: GraphNodeMeshProps) {
   const meshRef = useRef<Mesh>(null);
+  const { theme } = useTheme();
   const domainHex = getDomainStyle(node.category).hex;
   const { color, emissive, emissiveIntensity, opacity, radius } = getNode3DVisuals(
     domainHex,
@@ -43,6 +46,7 @@ export function GraphNodeMesh({
     maxDegree,
     state,
     domainHighlighted,
+    canvasColors[theme].node,
   );
 
   useFrame(({ clock }) => {

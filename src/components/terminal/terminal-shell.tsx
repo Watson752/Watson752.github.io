@@ -8,6 +8,8 @@ export type TerminalShellProps = {
   header?: React.ReactNode;
   /** Optional bottom status region */
   footer?: React.ReactNode;
+  /** Neon flow background (see NeonFlow). */
+  flow?: boolean | "intro";
 };
 
 /**
@@ -18,9 +20,10 @@ export function TerminalShell({
   children,
   header,
   footer,
+  flow,
 }: TerminalShellProps) {
   return (
-    <TerminalBackdrop className="flex flex-col">
+    <TerminalBackdrop className="flex flex-col" flow={flow}>
       <div
         className={cn(
           "relative z-10 mx-auto flex min-h-dvh w-full min-w-0 max-w-[1600px] flex-col overflow-x-hidden px-3 py-2 sm:px-5 sm:py-3 lg:px-6",

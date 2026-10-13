@@ -16,6 +16,7 @@ export function ProjectDetailChrome({ project }: ProjectDetailChromeProps) {
     <>
       <TerminalShell
         className="min-h-dvh pb-24"
+        flow
         header={
           <header className="titlebar-chrome mb-4 flex min-w-0 items-center justify-between gap-3 rounded-md px-3 py-2.5 sm:mb-5">
             <Link

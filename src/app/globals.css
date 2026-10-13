@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ─── Terminal portfolio design tokens (dark-only, grayscale + domain accents) ─── */
+/* ─── Terminal portfolio design tokens (dark default + light, grayscale + domain accents) ─── */
 :root {
   color-scheme: dark;
 
@@ -77,6 +77,72 @@
     0 0 0 1px hsl(var(--border)),
     0 1px 0 0 hsl(var(--highlight-top)),
     0 16px 48px -20px rgb(0 0 0 / 0.7);
+}
+
+/* Light mode — same grayscale ramp inverted: paper-white shell, near-black ink.
+   Set by <html data-theme="light"> (see lib/theme/theme.ts). Domain accents are
+   darkened so badges and graph edges keep contrast on a light background. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --background: 0 0% 97%;
+  --foreground: 0 0% 9%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
+  --surface: 0 0% 99%;
+  --surface-elevated: 0 0% 94%;
+  --surface-inset: 0 0% 95%;
+
+  --border: 0 0% 78%;
+  --border-subtle: 0 0% 87%;
+  --input: 0 0% 82%;
+  --ring: 0 0% 30%;
+
+  --muted: 0 0% 92%;
+  --muted-foreground: 0 0% 38%;
+  --secondary: 0 0% 93%;
+  --secondary-foreground: 0 0% 18%;
+
+  --primary: 0 0% 10%;
+  --primary-foreground: 0 0% 98%;
+
+  --accent: 0 0% 92%;
+  --accent-foreground: 0 0% 10%;
+
+  --destructive: 0 60% 45%;
+  --destructive-foreground: 0 0% 98%;
+  --success: 142 50% 32%;
+  --success-foreground: 0 0% 98%;
+  --warning: 38 75% 38%;
+  --warning-foreground: 0 0% 98%;
+
+  --domain-ui-ux: 350 40% 45%;
+  --domain-full-stack: 212 45% 42%;
+  --domain-data-analytics: 165 40% 32%;
+  --domain-cloud: 195 45% 36%;
+  --domain-ai-ml: 268 35% 50%;
+
+  --chart-1: 0 0% 30%;
+  --chart-2: 0 0% 42%;
+  --chart-3: 0 0% 54%;
+  --chart-4: 0 0% 66%;
+  --chart-5: 0 0% 78%;
+
+  --grid-line: 0 0% 0% / 0.05;
+  --titlebar: 0 0% 98%;
+  --titlebar-foreground: 0 0% 42%;
+  --highlight-top: 0 0% 100% / 0.7;
+  --shadow-panel:
+    0 0 0 1px hsl(var(--border-subtle)),
+    0 1px 0 0 hsl(var(--highlight-top)),
+    0 12px 32px -18px rgb(0 0 0 / 0.18);
+  --shadow-elevated:
+    0 0 0 1px hsl(var(--border)),
+    0 1px 0 0 hsl(var(--highlight-top)),
+    0 16px 40px -20px rgb(0 0 0 / 0.22);
 }
 
 /* Tailwind v4 theme bridge (tweakcn-style token mapping) */
@@ -362,6 +428,78 @@
     }
   }
 
+  /* Landing page: soft snap to each full-screen section (see SectionShell `panel`). */
+  html:has(.landing-snap) {
+    scroll-snap-type: y proximity;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html:has(.landing-snap) {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Landing panels float: they rise in the first time they scroll into view,
+     the section in focus (data-active) sits forward while the others recede,
+     and every layer drifts gently. The drift animates `translate`, separate
+     from the `transform` used by reveal/focus, so the two compose instead of
+     fighting. Only applied once JS has mounted (html.js-ready) so the static
+     export never ships invisible content. */
+  .section-reveal > * {
+    transform-origin: 50% 0%;
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: calc(var(--i, 0) * 110ms);
+  }
+
+  .js-ready .section-reveal > * {
+    animation: section-float 8s ease-in-out infinite;
+    /* Header and body drift out of phase, like separate layers. */
+    animation-delay: calc(var(--i, 0) * -3.2s);
+  }
+
+  .js-ready .section-reveal[data-visible="true"]:not([data-active="true"]) > * {
+    opacity: 0.45;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  .js-ready .section-reveal:not([data-visible="true"]) > * {
+    opacity: 0;
+    transform: translateY(36px) scale(0.97);
+  }
+
+  @keyframes section-float {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 var(--float-distance, -6px);
+    }
+  }
+
+  @media (max-width: 639px) {
+    .section-reveal {
+      --float-distance: -4px;
+    }
+  }
+
+  /* Sparse panels (experience, ask, contact) only fill part of a laptop
+     screen — scale their content up to 25%; `--enlarge` is fitted to the
+     screen height by useFitEnlarge. `zoom` (not transform) so layout
+     reflows and text stays crisp. Applied to the children, not the section,
+     so the panel's min-h-dvh and padding stay one screen.
+     A WebGL canvas must never sit inside a zoomed box: its resize observer
+     sees the zoomed size, grows, and loops. So a body containing
+     [data-enlarge] markers is left alone and only the marked parts zoom. */
+  @media (min-width: 1024px) {
+    .section-enlarge > :not(:has([data-enlarge])),
+    .section-enlarge [data-enlarge] {
+      zoom: var(--enlarge, 1.25);
+    }
+  }
+
   .portfolio-response-enter {
     animation: portfolio-fade-in 0.32s ease-out both;
   }
@@ -386,5 +524,15 @@
 
   .interactive-panel {
     transition: none;
+  }
+
+  .section-reveal > *,
+  .js-ready .section-reveal > *,
+  .js-ready .section-reveal:not([data-visible="true"]) > *,
+  .js-ready .section-reveal[data-visible="true"]:not([data-active="true"]) > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: none;
   }
 }

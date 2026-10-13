@@ -15,7 +15,7 @@ export type DomainStyle = {
  * lookup of literal Tailwind class names — never construct `domain-${slug}` at
  * runtime, or Tailwind's compiler won't see the class and will drop it.
  */
-export const DOMAIN_STYLES: Record<DomainCategory, DomainStyle> = {
+export const DOMAIN_STYLES: Partial<Record<DomainCategory, DomainStyle>> = {
   "UI/UX": {
     text: "text-domain-ui-ux",
     bg: "bg-domain-ui-ux/10",
@@ -63,8 +63,19 @@ export const DOMAIN_STYLES: Record<DomainCategory, DomainStyle> = {
   },
 };
 
+/** Muted gray for taxonomy domains that have no color of their own yet. */
+const NEUTRAL_STYLE: DomainStyle = {
+  text: "text-muted-foreground",
+  bg: "bg-muted/10",
+  border: "border-border-subtle",
+  dot: "bg-muted-foreground",
+  fill: "fill-muted-foreground",
+  stroke: "stroke-muted-foreground",
+  hex: "#8c8c8c",
+};
+
 export function getDomainStyle(domain: DomainCategory): DomainStyle {
-  return DOMAIN_STYLES[domain];
+  return DOMAIN_STYLES[domain] ?? NEUTRAL_STYLE;
 }
 
 export const ALL_DOMAINS = Object.keys(DOMAIN_STYLES) as DomainCategory[];

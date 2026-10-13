@@ -30,3 +30,20 @@ export const terminalTheme = {
 } as const;
 
 export type TerminalTheme = typeof terminalTheme;
+
+/** Raw canvas colors per theme (mirrors the light block in globals.css). */
+export const canvasColors = {
+  dark: {
+    background: terminalTheme.colors.background,
+    surfaceInset: terminalTheme.colors.surfaceInset,
+    muted: terminalTheme.colors.muted,
+    /** Graph nodes at rest */
+    node: "#f5f5f5",
+  },
+  light: {
+    background: "#f7f7f7",
+    surfaceInset: "#f2f2f2",
+    muted: "#7a7a7a",
+    node: "#b4b4b4",
+  },
+} as const;

@@ -5,11 +5,17 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ALLOWED_ORIGIN = "https://watson752.github.io"
-# An OpenRouter free-tier ("...:free") model slug. OpenRouter's free-model
-# roster changes over time — verify this is still live (and swap it if not)
-# at https://openrouter.ai/models?max_price=0 before deploying. Verified
-# working (clean, non-reasoning output; $0 cost) on 2026-08-26.
-MODEL = "poolside/laguna-s-2.1:free"
+# Comma-separated OpenRouter free-tier ("...:free") model slugs, tried in
+# order: when one is rate-limited upstream (common on shared free pools),
+# OpenRouter falls through to the next. The free roster changes over time —
+# check https://openrouter.ai/models?max_price=0 before deploying. All three
+# verified answering from the portfolio context on 2026-10-13.
+MODEL = "nvidia/nemotron-3-super-120b-a12b:free,poolside/laguna-s-2.1:free,nvidia/nemotron-3-ultra-550b-a55b:free"
+# Daily caps on OpenRouter calls (reset 00:00 UTC). OpenRouter's free tier
+# allows ~50 requests/day on a fresh account (~1000/day once you have bought
+# at least $10 of credits) — keep DAILY_GLOBAL_LIMIT under whichever applies.
+DAILY_IP_LIMIT = "10"
+DAILY_GLOBAL_LIMIT = "45"
 
 # Native Workers rate limiting binding — per-key sliding window, no extra
 # storage needed. Verify this is GA on your account before deploying; if
@@ -20,3 +26,13 @@ name = "CHAT_RATE_LIMITER"
 type = "ratelimit"
 namespace_id = "1001"
 simple = { limit = 20, period = 60 }
+
+# Exact daily counters (per visitor + global). Durable Objects serialize
+# access, so the check-and-increment can't race like a KV counter would.
+[[durable_objects.bindings]]
+name = "USAGE_COUNTER"
+class_name = "UsageCounter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["UsageCounter"]

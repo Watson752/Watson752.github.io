@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "predeploy": "npm run sync-context",
     "deploy": "wrangler deploy",
     "sync-context": "tsx scripts/sync-context.ts"
   },

@@ -51,3 +51,9 @@ export const SITE_ATTACHMENTS_DIR = path.join(
   "public",
   "vault-attachments",
 );
+export const DIAGRAMS_DIR = path.join(SITE_ATTACHMENTS_DIR, "diagrams");
+/**
+ * Hand-exported GitDiagram pictures, named {slug}.png — preferred over the auto
+ * summary card. Lives in the repo (not the gitignored vault) so it's versioned.
+ */
+export const DIAGRAM_SOURCES_DIR = path.join(REPO_ROOT, "content", "diagrams");

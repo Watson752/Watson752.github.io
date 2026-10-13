@@ -24,6 +24,8 @@ const baseSchema = z.object({
   summary: z.string().optional(),
   tags: z.array(z.string()).default([]),
   updated: z.string().optional(),
+  /** Set false to keep this note out of the knowledge graph (it still exports to notes.json) */
+  graph: z.boolean().default(true),
 });
 
 const projectFrontmatterSchema = baseSchema.extend({
@@ -31,6 +33,8 @@ const projectFrontmatterSchema = baseSchema.extend({
   status: z.enum(PROJECT_STATUSES).default("shipped"),
   links: linksSchema.optional(),
   stack: z.array(z.string()).default([]),
+  /** Set false to hide the GitDiagram architecture picture for this project */
+  diagram: z.boolean().default(true),
 });
 
 const noteFrontmatterSchema = baseSchema.extend({

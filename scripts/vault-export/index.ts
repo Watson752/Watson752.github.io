@@ -4,6 +4,7 @@ import { DENYLIST_SEGMENTS, PUBLIC_ROOT, VAULT_ROOT, type Domain } from "./confi
 import { readCandidate, validateCandidate, type ValidatedFrontmatter } from "./frontmatter";
 import { deriveSummary, renderMarkdownToHtml, resolveWikilinks, type SlugTarget } from "./markdown";
 import { buildGraph, type GraphSourceNote } from "./graph";
+import { syncProjectDiagram, type DiagramResult } from "./diagrams";
 import { writeJson } from "./write-output";
 
 type PublishedCandidate = {
@@ -107,6 +108,23 @@ async function main() {
     titleToTarget.set(path.basename(note.filePath, ".md").toLowerCase(), target);
   }
 
+  const offlineDiagrams = process.env.VAULT_DIAGRAMS === "offline";
+  const diagramResults = new Map<string, DiagramResult>(
+    await Promise.all(
+      published.flatMap(({ frontmatter }) =>
+        frontmatter.type === "project"
+          ? [
+              syncProjectDiagram(
+                frontmatter.slug,
+                frontmatter.diagram ? frontmatter.links?.repo : undefined,
+                { offline: offlineDiagrams },
+              ).then((result) => [frontmatter.slug, result] as const),
+            ]
+          : [],
+      ),
+    ),
+  );
+
   const notesJson: Record<string, unknown>[] = [];
   const graphSourceNotes: GraphSourceNote[] = [];
 
@@ -138,12 +156,20 @@ async function main() {
       record.status = frontmatter.status;
       record.stack = frontmatter.stack;
       record.externalLinks = frontmatter.links ?? {};
+
+      const diagram = diagramResults.get(frontmatter.slug);
+      if (diagram?.status === "saved" || diagram?.status === "cached") {
+        record.diagram = diagram.diagram;
+      } else if (diagram?.status === "not-generated" && !offlineDiagrams) {
+        warn(`${relPath}: no GitDiagram yet — open ${diagram.href} once to generate it`);
+      }
     } else if (frontmatter.type === "role") {
       record.org = frontmatter.org;
       record.dates = frontmatter.dates;
     }
 
     notesJson.push(record);
+    if (!frontmatter.graph) continue;
     graphSourceNotes.push({
       slug: frontmatter.slug,
       title: frontmatter.title,

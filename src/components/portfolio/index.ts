@@ -16,3 +16,4 @@ export {
 export { ProjectStatusReadout } from "./project-status-readout";
 export { ContactLinks } from "./contact-links";
 export { CollabForm } from "./collab-form";
+export { ExperienceLog, type ExperienceLogProps } from "./experience-log";

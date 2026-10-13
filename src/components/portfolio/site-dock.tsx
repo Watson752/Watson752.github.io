@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { StatusIndicator, type SystemStatus } from "@/components/portfolio/status-indicator";
+import { ThemeToggle } from "@/components/portfolio/theme-toggle";
 import { cn } from "@/lib/utils";
 
 export type SiteDockProps = {
@@ -31,7 +32,7 @@ export function SiteDock({ name, status, nav, className }: SiteDockProps) {
       <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-border bg-titlebar/95 px-2 py-1.5 shadow-elevated backdrop-blur-sm">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] text-foreground"
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] text-foreground"
         >
           <StatusIndicator status={status} showLabel={false} />
           {name}
@@ -68,6 +69,10 @@ export function SiteDock({ name, status, nav, className }: SiteDockProps) {
             </Link>
           );
         })}
+        <span className="text-border" aria-hidden>
+          |
+        </span>
+        <ThemeToggle />
       </div>
     </nav>
   );

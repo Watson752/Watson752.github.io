@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const note = notesBySlug[slug];
   if (!note || note.type === "project") return { title: "Note not found" };
   return {
-    title: `${note.title} — Portfolio Terminal`,
+    title: `${note.title} | Portfolio Terminal`,
     description: note.summary,
   };
 }

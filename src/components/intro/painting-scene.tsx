@@ -9,6 +9,8 @@ export type IntroPhase = "idle" | "falling" | "done";
 
 export type PaintingSceneProps = {
   phase: IntroPhase;
+  /** Static painting (no ripple) and a plain fade instead of the shatter. */
+  reducedMotion?: boolean;
   className?: string;
 };
 
@@ -22,6 +24,21 @@ const RIPPLE_FREQUENCY = 5.5;
 const RIPPLE_AMPLITUDE_Z = 0.12;
 const RIPPLE_UV_WARP = 0.018;
 const MOUSE_SENTINEL = 9999;
+// How fast uStrength eases toward its target (per second) — ~600ms to fade
+// out after a finger lifts, instead of the ripple snapping off.
+const STRENGTH_EASE = 5;
+// Touch screens have no hover, so with no finger down the ripple drifts on
+// its own along a slow Lissajous path near the hands.
+const AMBIENT_STRENGTH = 0.6;
+const AMBIENT_RADIUS_X = 0.55;
+const AMBIENT_RADIUS_Y = 0.35;
+
+// Shatter grid density, expressed as shards across the *visible* frame so a
+// portrait cover-fit (which only shows a narrow slice of the plane) still
+// breaks into many visible pieces.
+const SHARDS_VISIBLE_LANDSCAPE = { cols: 10, rows: 5 };
+const SHARDS_VISIBLE_PORTRAIT = { cols: 5, rows: 8 };
+const MAX_SHARDS = 160;
 
 // Eyeballed UV position of the fingers-almost-touching point in
 // creation-of-adam.jpg (three.js UV convention: u=0 left/1 right, v=0
@@ -49,6 +66,7 @@ const VERTEX_SHADER = /* glsl */ `
   uniform float uWaveNumber;
   uniform float uFrequency;
   uniform float uAmplitudeZ;
+  uniform float uStrength;
 
   varying vec2 vUv;
   varying vec2 vPos;
@@ -58,7 +76,7 @@ const VERTEX_SHADER = /* glsl */ `
     vPos = position.xy;
     vec3 pos = position;
     float dist = distance(position.xy, uMouse);
-    float falloff = exp(-(dist * dist) / uRadius);
+    float falloff = uStrength * exp(-(dist * dist) / uRadius);
     float ripple = sin(dist * uWaveNumber - uTime * uFrequency) * falloff;
     pos.z += ripple * uAmplitudeZ;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -87,13 +105,15 @@ const FRAGMENT_SHADER = /* glsl */ `
   uniform vec2 uCropScale;
   uniform float uGlowRadius;
   uniform float uGlowStrength;
+  uniform float uStrength;
+  uniform float uOpacity;
 
   varying vec2 vUv;
   varying vec2 vPos;
 
   void main() {
     float dist = distance(vPos, uMouse);
-    float falloff = exp(-(dist * dist) / uRadius);
+    float falloff = uStrength * exp(-(dist * dist) / uRadius);
     float ripple = sin(dist * uWaveNumber - uTime * uFrequency) * falloff;
     vec2 dir = dist > 1e-4 ? (vPos - uMouse) / dist : vec2(0.0);
 
@@ -112,7 +132,7 @@ const FRAGMENT_SHADER = /* glsl */ `
     float glow = uGlowStrength * pulse * exp(-(centerDist * centerDist) / uGlowRadius);
     vec3 litColor = mix(linearColor, vec3(1.0), clamp(glow, 0.0, 1.0));
 
-    gl_FragColor = vec4(litColor, 1.0);
+    gl_FragColor = vec4(litColor, uOpacity);
   }
 `;
 
@@ -134,7 +154,7 @@ type ShardVelocity = {
  * WebGL is unavailable or the image fails to load — IntroGate still shows
  * the name/caption/button in that case.
  */
-export function PaintingScene({ phase, className }: PaintingSceneProps) {
+export function PaintingScene({ phase, reducedMotion = false, className }: PaintingSceneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const phaseRef = useRef<IntroPhase>(phase);
   const fallStartRef = useRef<number | null>(null);
@@ -161,6 +181,8 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
     let disposed = false;
     let rafId = 0;
     const sceneDims = { width: SCENE_WIDTH, height: SCENE_WIDTH * 0.45 };
+    // World-space size of what the camera actually shows at the plane (z=0).
+    const visible = { width: SCENE_WIDTH, height: SCENE_WIDTH * 0.45 };
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, 0.1, 100);
@@ -171,12 +193,22 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
     function fitCamera(clientWidth: number, clientHeight: number) {
       const aspect = clientWidth / clientHeight;
       const fovRad = (camera.fov * Math.PI) / 180;
-      const margin = 1.2;
-      const zForHeight = (sceneDims.height * margin) / (2 * Math.tan(fovRad / 2));
-      const zForWidth = (sceneDims.width * margin) / (2 * Math.tan(fovRad / 2) * aspect);
-      camera.position.z = Math.max(zForHeight, zForWidth, 1);
+      const tanHalf = Math.tan(fovRad / 2);
+      // Portrait (phones): cover-fit — the plane fills the screen height and
+      // overflows sideways, staying centered on the hands. Landscape keeps a
+      // contain-fit with a margin so the whole crop is visible.
+      const portrait = aspect < 1;
+      const margin = portrait ? 1 : 1.2;
+      const zForHeight = (sceneDims.height * margin) / (2 * tanHalf);
+      const zForWidth = (sceneDims.width * margin) / (2 * tanHalf * aspect);
+      camera.position.z = Math.max(
+        portrait ? Math.min(zForHeight, zForWidth) : Math.max(zForHeight, zForWidth),
+        0.5,
+      );
       camera.aspect = aspect;
       camera.updateProjectionMatrix();
+      visible.height = 2 * tanHalf * camera.position.z;
+      visible.width = visible.height * aspect;
     }
 
     function resize() {
@@ -195,11 +227,17 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
       pointerRef.current.y = event.clientY;
       pointerRef.current.active = true;
     }
-    function onPointerLeave() {
-      pointerRef.current.active = false;
+    function onPointerEnd(event: PointerEvent) {
+      // A lifted finger keeps its last position so the ripple fades in place.
+      if (event.pointerType !== "mouse" || event.type === "pointerleave") {
+        pointerRef.current.active = false;
+      }
     }
+    container.addEventListener("pointerdown", onPointerMove, { passive: true });
     container.addEventListener("pointermove", onPointerMove, { passive: true });
-    container.addEventListener("pointerleave", onPointerLeave, { passive: true });
+    container.addEventListener("pointerup", onPointerEnd, { passive: true });
+    container.addEventListener("pointercancel", onPointerEnd, { passive: true });
+    container.addEventListener("pointerleave", onPointerEnd, { passive: true });
 
     let idleGeometry: THREE.PlaneGeometry | null = null;
     let idleMaterial: THREE.ShaderMaterial | null = null;
@@ -227,9 +265,11 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
       uCropScale: { value: new THREE.Vector2(CROP_SCALE, CROP_SCALE) },
       uGlowRadius: { value: GLOW_RADIUS },
       uGlowStrength: { value: GLOW_STRENGTH },
+      uStrength: { value: 0 },
+      uOpacity: { value: 1 },
     };
 
-    const isMobile = window.innerWidth < 640;
+    const isTouchOnly = window.matchMedia("(hover: none)").matches;
 
     const loader = new THREE.TextureLoader();
     loader.load(
@@ -259,6 +299,7 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
           vertexShader: VERTEX_SHADER,
           fragmentShader: FRAGMENT_SHADER,
           side: THREE.FrontSide,
+          transparent: true,
         });
         idleMesh = new THREE.Mesh(idleGeometry, idleMaterial);
         scene.add(idleMesh);
@@ -274,8 +315,18 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
       shatterBuilt = true;
       idleMesh.visible = false;
 
-      const cols = isMobile ? 6 : 10;
-      const rows = isMobile ? 4 : 5;
+      // Size shards from the visible frame, then tile the whole plane with
+      // them (off-screen ones are cheap and fly in from the edges).
+      const target = visible.width < visible.height ? SHARDS_VISIBLE_PORTRAIT : SHARDS_VISIBLE_LANDSCAPE;
+      const frameW = Math.min(visible.width, sceneDims.width);
+      const frameH = Math.min(visible.height, sceneDims.height);
+      let cols = Math.max(1, Math.round((sceneDims.width / frameW) * target.cols));
+      let rows = Math.max(1, Math.round((sceneDims.height / frameH) * target.rows));
+      if (cols * rows > MAX_SHARDS) {
+        const scale = Math.sqrt(MAX_SHARDS / (cols * rows));
+        cols = Math.max(1, Math.floor(cols * scale));
+        rows = Math.max(1, Math.floor(rows * scale));
+      }
       const shardW = sceneDims.width / cols;
       const shardH = sceneDims.height / rows;
 
@@ -345,7 +396,10 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
       uniforms.uTime.value += delta;
 
       if (phaseRef.current === "idle" && idleMesh) {
-        if (pointerRef.current.active) {
+        let targetStrength = 0;
+        if (reducedMotion) {
+          targetStrength = 0;
+        } else if (pointerRef.current.active) {
           const rect = container.getBoundingClientRect();
           const ndcX = ((pointerRef.current.x - rect.left) / rect.width) * 2 - 1;
           const ndcY = -(((pointerRef.current.y - rect.top) / rect.height) * 2 - 1);
@@ -354,12 +408,26 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
           const hits = raycaster.intersectObject(idleMesh, false);
           if (hits.length > 0) {
             uniforms.uMouse.value.set(hits[0].point.x, hits[0].point.y);
-          } else {
-            uniforms.uMouse.value.set(MOUSE_SENTINEL, MOUSE_SENTINEL);
+            targetStrength = 1;
           }
-        } else {
+        } else if (isTouchOnly) {
+          const t = uniforms.uTime.value;
+          const ambientX = Math.sin(t * 0.37) * AMBIENT_RADIUS_X * Math.min(visible.width, sceneDims.width) * 0.5;
+          const ambientY = Math.sin(t * 0.53 + 1.1) * AMBIENT_RADIUS_Y * Math.min(visible.height, sceneDims.height) * 0.5;
+          uniforms.uMouse.value.set(ambientX, ambientY);
+          targetStrength = AMBIENT_STRENGTH;
+        }
+        // Ease toward the target; once fully faded, park the ripple far away.
+        const current = uniforms.uStrength.value;
+        uniforms.uStrength.value =
+          current + (targetStrength - current) * Math.min(1, delta * STRENGTH_EASE);
+        if (uniforms.uStrength.value < 0.01 && targetStrength === 0) {
           uniforms.uMouse.value.set(MOUSE_SENTINEL, MOUSE_SENTINEL);
         }
+      } else if (phaseRef.current === "falling" && reducedMotion) {
+        const elapsed = fallStartRef.current ? performance.now() - fallStartRef.current : 0;
+        uniforms.uStrength.value = 0;
+        uniforms.uOpacity.value = Math.max(0, 1 - elapsed / FALL_DURATION_MS);
       } else if (phaseRef.current === "falling") {
         buildShatter();
 
@@ -391,8 +459,11 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
       disposed = true;
       cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
+      container.removeEventListener("pointerdown", onPointerMove);
       container.removeEventListener("pointermove", onPointerMove);
-      container.removeEventListener("pointerleave", onPointerLeave);
+      container.removeEventListener("pointerup", onPointerEnd);
+      container.removeEventListener("pointercancel", onPointerEnd);
+      container.removeEventListener("pointerleave", onPointerEnd);
 
       texture?.dispose();
       idleGeometry?.dispose();
@@ -407,7 +478,15 @@ export function PaintingScene({ phase, className }: PaintingSceneProps) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [reducedMotion]);
 
-  return <div ref={containerRef} className={cn("h-full w-full", className)} aria-hidden />;
+  // touch-action: none — the intro is a fixed modal with nothing to scroll,
+  // so finger drags should feed the ripple instead of panning the page.
+  return (
+    <div
+      ref={containerRef}
+      className={cn("h-full w-full touch-none", className)}
+      aria-hidden
+    />
+  );
 }

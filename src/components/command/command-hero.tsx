@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils";
 import type { CommandDefinition } from "@/lib/commands";
 
 export type CommandHeroProps = {
-  systemLabel: string;
+  /** Optional badge above the headline */
+  systemLabel?: string;
   headline: string;
   subheading: string;
   query: string;
@@ -39,7 +40,7 @@ export function CommandHero({
   const isCommandMode = query.trim().startsWith("/");
   return (
     <section className={cn("space-y-6 sm:space-y-7", className)}>
-      <TerminalBadge variant="muted">{systemLabel}</TerminalBadge>
+      {systemLabel && <TerminalBadge variant="muted">{systemLabel}</TerminalBadge>}
 
       <div className="space-y-3.5">
         <h1 className="max-w-2xl text-balance text-xl font-medium tracking-[-0.02em] text-foreground sm:text-2xl md:text-[1.75rem] md:leading-[1.2]">

@@ -10,7 +10,8 @@ import { GraphEdgeLine } from "@/components/graph/graph-edge-line";
 import { GraphNodeMesh } from "@/components/graph/graph-node-mesh";
 import { getDomainStyle } from "@/lib/domain-colors";
 import { getEdgeOpacity, SCENE_SCALE, type NodeVisualState } from "@/lib/graph-visual";
-import { terminalTheme } from "@/lib/theme/tokens";
+import { canvasColors } from "@/lib/theme/tokens";
+import { useTheme } from "@/hooks/use-theme";
 import { useGraphSimulation } from "@/lib/use-graph-simulation";
 import type { DomainCategory, GraphNode } from "@/types/portfolio";
 
@@ -22,6 +23,8 @@ export type GraphScene3DProps = {
   hoveredNodeId: string | null;
   onHoverNode: (nodeId: string | null) => void;
   onNodeSelect: (nodeId: string) => void;
+  /** Touch screens: vertical swipes scroll the page, horizontal drags rotate; no pinch-zoom. */
+  coarsePointer?: boolean;
 };
 
 export function GraphScene3D({
@@ -32,10 +35,13 @@ export function GraphScene3D({
   hoveredNodeId,
   onHoverNode,
   onNodeSelect,
+  coarsePointer = false,
 }: GraphScene3DProps) {
   const { simulation, nodesById, tick } = useGraphSimulation(graphNodes, graphEdges);
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const draggingNodeIdRef = useRef<string | null>(null);
+  const { theme } = useTheme();
+  const colors = canvasColors[theme];
 
   function endDrag() {
     const draggingId = draggingNodeIdRef.current;
@@ -76,15 +82,23 @@ export function GraphScene3D({
     simNode.fy = worldY / SCENE_SCALE;
   }
 
+  // OrbitControls pins `touch-action: none` inline on its element when it
+  // connects, which would trap page scrolling on a full-width phone canvas.
+  useEffect(() => {
+    const element = controlsRef.current?.domElement;
+    if (element) element.style.touchAction = coarsePointer ? "pan-y" : "none";
+  }, [coarsePointer]);
+
   useFrame(() => {
     tick();
   });
 
   return (
     <>
-      <color attach="background" args={[terminalTheme.colors.surfaceInset]} />
-      <fog attach="fog" args={[terminalTheme.colors.background, 6, 22]} />
-      <ambientLight intensity={0.4} />
+      <color key={`bg-${theme}`} attach="background" args={[colors.surfaceInset]} />
+      <fog key={`fog-${theme}`} attach="fog" args={[colors.background, 6, 22]} />
+      {/* Brighter fill on the light theme so resting nodes read mid-grey, not black. */}
+      <ambientLight intensity={theme === "light" ? 1.3 : 0.4} />
       <pointLight position={[2, 2, 3]} intensity={0.65} color="#c8e8f0" />
       <pointLight position={[-2, -1, 2]} intensity={0.45} color="#cbb8f0" />
       <pointLight position={[0, 2.5, -2]} intensity={0.3} color="#f5f5f5" />
@@ -92,7 +106,7 @@ export function GraphScene3D({
       <OrbitControls
         ref={controlsRef}
         enablePan={false}
-        enableZoom
+        enableZoom={!coarsePointer}
         minDistance={5.5}
         maxDistance={13}
         rotateSpeed={0.35}
@@ -117,7 +131,7 @@ export function GraphScene3D({
           const edgeDomain = edge.domains[0];
           const color = edgeDomain
             ? getDomainStyle(edgeDomain).hex
-            : terminalTheme.colors.muted;
+            : colors.muted;
           return (
             <GraphEdgeLine
               key={`${edge.source}-${edge.target}`}

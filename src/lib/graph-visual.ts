@@ -52,7 +52,6 @@ export type Node3DVisuals = {
 /** Neutral node color — nodes read as white by default; domain color is reserved
  *  for when a node is actually being highlighted (its domain is filtered in,
  *  or it's hovered/selected). */
-const NEUTRAL_NODE_HEX = "#f5f5f5";
 
 /**
  * Sphere size/lighting for a graph node. Nodes are white at rest; they only
@@ -66,6 +65,8 @@ export function getNode3DVisuals(
   maxDegree: number,
   state: NodeVisualState,
   domainHighlighted: boolean,
+  /** Resting (non-domain) node color — light on the dark theme, dark on light. */
+  neutralHex: string,
 ): Node3DVisuals {
   const t = maxDegree > 0 ? degree / maxDegree : 0;
   const base = MIN_RADIUS_3D + t * (MAX_RADIUS_3D - MIN_RADIUS_3D);
@@ -74,7 +75,7 @@ export function getNode3DVisuals(
     state === "selected" ? 0.85 : state === "hovered" ? 0.65 : state === "active" ? 0.4 : 0;
 
   const showDomainColor = domainHighlighted || state === "hovered" || state === "selected";
-  const color = showDomainColor ? domainHex : NEUTRAL_NODE_HEX;
+  const color = showDomainColor ? domainHex : neutralHex;
 
   return {
     color,

@@ -4,7 +4,11 @@ export type DomainCategory =
   | "Full Stack"
   | "Data Analytics"
   | "Cloud"
-  | "AI/ML";
+  | "AI/ML"
+  // In the vault taxonomy (vault/PUBLISHING.md) but without a site color yet;
+  // rendered with the neutral fallback style in lib/domain-colors.ts.
+  | "Hardware/Firmware"
+  | "Leadership";
 
 /** Matches vault/PUBLISHING.md's frontmatter `type` field */
 export type NoteType = "project" | "note" | "role";
@@ -15,6 +19,15 @@ export type ExternalLinks = {
   demo?: string;
   repo?: string;
   docs?: string;
+};
+
+export type ProjectDiagram = {
+  /** Site-relative path to the saved image */
+  src: string;
+  /** Interactive diagram on gitdiagram.com */
+  href: string;
+  width: number;
+  height: number;
 };
 
 /**
@@ -37,6 +50,8 @@ export type Note = {
   status?: ProjectStatus;
   stack?: string[];
   externalLinks?: ExternalLinks;
+  /** GitDiagram architecture picture, saved at export time (public repos only) */
+  diagram?: ProjectDiagram;
   /** role notes only */
   org?: string;
   dates?: string;
@@ -93,14 +108,35 @@ export type CommandResult = {
   lines: string[];
 };
 
+export type WorkMode = "On-site" | "Hybrid" | "Remote";
+
+/** A role shown in the landing page's experience log. */
+export type Experience = {
+  /** Short slug, shown as the git-log "ref" label */
+  id: string;
+  title: string;
+  org: string;
+  employmentType: string;
+  /** ISO month, e.g. "2026-09" */
+  start: string;
+  /** ISO month (may be in the future for a fixed-term role), or null while open-ended */
+  end: string | null;
+  location: string;
+  mode: WorkMode;
+  skills: string[];
+  highlights: string[];
+};
+
 export type SiteProfile = {
   name: string;
   role: string;
   systemLabel: string;
   headline: string;
   subheading: string;
-  /** Short availability caption shown on the intro gate, e.g. "Available for Fall 2026". */
-  availability: string;
+  /** Personal quote shown under the name on the intro gate. */
+  quote: string;
+  /** Shown above the experience log, e.g. "Available for Summer 2027 Internships". */
+  availability?: string;
   status: "online" | "idle" | "busy";
   nav: { label: string; href: string }[];
 };

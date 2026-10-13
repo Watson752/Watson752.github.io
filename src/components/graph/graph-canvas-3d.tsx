@@ -4,7 +4,8 @@ import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { GraphScene3D, type GraphScene3DProps } from "@/components/graph/graph-scene-3d";
 import { cn } from "@/lib/utils";
-import { terminalTheme } from "@/lib/theme/tokens";
+import { canvasColors } from "@/lib/theme/tokens";
+import { readTheme } from "@/lib/theme/theme";
 
 export type GraphCanvas3DProps = GraphScene3DProps & {
   className?: string;
@@ -26,7 +27,7 @@ export function GraphCanvas3D({
 
   return (
     <Canvas
-      className={cn("touch-none", className)}
+      className={cn(sceneProps.coarsePointer ? "touch-pan-y" : "touch-none", className)}
       camera={{ position: [0, 0.3, 8.5], fov: 42, near: 0.1, far: 40 }}
       dpr={[1, 1.5]}
       gl={{
@@ -36,7 +37,7 @@ export function GraphCanvas3D({
       }}
       onCreated={({ gl }) => {
         try {
-          gl.setClearColor(terminalTheme.colors.surfaceInset);
+          gl.setClearColor(canvasColors[readTheme()].surfaceInset);
         } catch {
           setWebglFailed(true);
         }

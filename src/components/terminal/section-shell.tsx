@@ -9,6 +9,14 @@ export type SectionShellProps = {
   /** Monospace label shown in the section chrome */
   kicker?: string;
   actions?: React.ReactNode;
+  /** Full-viewport landing panel: min one screen tall, snap target, reveal-on-scroll. */
+  panel?: boolean;
+  /** Panel only — whether the section has scrolled into view (triggers the reveal). */
+  visible?: boolean;
+  /** Panel only — the section currently in focus; the others recede slightly. */
+  active?: boolean;
+  /** Panel only — scale the content up 25% on laptop/desktop screens (see `.section-enlarge`). */
+  enlarge?: boolean;
 };
 
 /**
@@ -22,19 +30,31 @@ export function SectionShell({
   description,
   kicker,
   actions,
+  panel = false,
+  visible = false,
+  active = false,
+  enlarge = false,
 }: SectionShellProps) {
   const hasHeader = title ?? description ?? kicker ?? actions;
 
   return (
     <section
       id={id}
+      data-visible={panel ? visible : undefined}
+      data-active={panel ? active : undefined}
       className={cn(
-        "flex min-w-0 flex-col gap-4 border-t border-border-subtle/80 pt-6 sm:gap-5 sm:pt-8",
+        "flex min-w-0 flex-col gap-4 sm:gap-5",
+        panel
+          ? cn(
+              "section-reveal min-h-dvh snap-start justify-center pt-16 pr-8 pb-28 sm:pr-12 sm:pb-24 lg:pr-16",
+              enlarge && "section-enlarge",
+            )
+          : "border-t border-border-subtle/80 pt-6 sm:pt-8",
         className,
       )}
     >
       {hasHeader && (
-        <header className="flex items-start justify-between gap-4">
+        <header className="flex items-start justify-between gap-4" style={{ "--i": 0 } as React.CSSProperties}>
           <div className="min-w-0 space-y-1.5">
             {kicker && <p className="text-kicker">{kicker}</p>}
             {title && (
@@ -51,7 +71,13 @@ export function SectionShell({
           {actions && <div className="shrink-0">{actions}</div>}
         </header>
       )}
-      {children}
+      {panel ? (
+        <div className="flex min-w-0 flex-col gap-4 sm:gap-5" style={{ "--i": 1 } as React.CSSProperties}>
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </section>
   );
 }

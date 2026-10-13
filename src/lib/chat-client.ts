@@ -8,6 +8,8 @@ const FRIENDLY_MESSAGES: Record<string, string> = {
   upstream_rate_limited:
     "The free AI tier hit its request limit for now — showing the local match below.",
   rate_limited: "You're querying a bit fast — try again in a minute.",
+  daily_limit: "You've hit today's AI question limit — showing the local match below.",
+  capacity_reached: "The AI has hit its daily budget for everyone — showing the local match below.",
 };
 
 const DEFAULT_FRIENDLY_MESSAGE = "AI backend is unavailable right now — showing the local match below.";

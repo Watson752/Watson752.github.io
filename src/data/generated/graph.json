@@ -7,8 +7,8 @@
       "category": "Cloud",
       "strength": 5,
       "position": {
-        "x": 0.48411669207409225,
-        "y": -0.9606729300763842,
+        "x": -0.07967951516670997,
+        "y": -1.9556063675849176,
         "z": 0
       },
       "relatedProjectIds": [
@@ -28,10 +28,10 @@
       "label": "Brain Tumor Detection Model",
       "type": "project",
       "category": "AI/ML",
-      "strength": 4,
+      "strength": 5,
       "position": {
-        "x": -1.3200013943684132,
-        "y": -0.9510439022064717,
+        "x": 2.106326624969164,
+        "y": -0.24110401865306,
         "z": 0
       },
       "relatedProjectIds": [
@@ -50,10 +50,10 @@
       "label": "CRA Audit Knowledge Retrieval",
       "type": "project",
       "category": "AI/ML",
-      "strength": 4,
+      "strength": 5,
       "position": {
-        "x": -0.01829194254606467,
-        "y": -2.071399808468249,
+        "x": 1.271396942346843,
+        "y": -1.0058177955023473,
         "z": 0
       },
       "relatedProjectIds": [
@@ -73,10 +73,10 @@
       "label": "Eco Intelligence Dashboard",
       "type": "project",
       "category": "UI/UX",
-      "strength": 3,
+      "strength": 4,
       "position": {
-        "x": 1.116578053625575,
-        "y": 2.4,
+        "x": -1.0314820193705359,
+        "y": 2.3845291282781496,
         "z": 0
       },
       "relatedProjectIds": [
@@ -96,10 +96,10 @@
       "label": "Happy Hour In My City",
       "type": "project",
       "category": "Full Stack",
-      "strength": 3,
+      "strength": 4,
       "position": {
-        "x": -0.1145220154840193,
-        "y": 2.31069701831321,
+        "x": -2.1516889709360965,
+        "y": 1.7389744599128873,
         "z": 0
       },
       "relatedProjectIds": [
@@ -118,10 +118,10 @@
       "label": "NSE Stock Tracker",
       "type": "project",
       "category": "Data Analytics",
-      "strength": 7,
+      "strength": 8,
       "position": {
-        "x": -0.25992559584359215,
-        "y": 0.23607016233353936,
+        "x": -0.240490126376073,
+        "y": -0.1427693527602027,
         "z": 0
       },
       "relatedProjectIds": [
@@ -136,14 +136,37 @@
       ]
     },
     {
+      "id": "onyx",
+      "label": "Onyx",
+      "type": "project",
+      "category": "Full Stack",
+      "strength": 6,
+      "position": {
+        "x": 0.36172645892041577,
+        "y": 1.394030469526907,
+        "z": 0
+      },
+      "relatedProjectIds": [
+        "onyx"
+      ],
+      "keywords": [
+        "full stack",
+        "ai/ml",
+        "hackathon",
+        "agentic-commerce",
+        "agents",
+        "procurement"
+      ]
+    },
+    {
       "id": "route_optimizer",
       "label": "Route Optimizer",
       "type": "project",
       "category": "Full Stack",
-      "strength": 4,
+      "strength": 5,
       "position": {
-        "x": 1.2284727705679097,
-        "y": 1.0101509318916368,
+        "x": -1.8640538440900822,
+        "y": 0.22763915304887072,
         "z": 0
       },
       "relatedProjectIds": [
@@ -165,8 +188,8 @@
       "category": "Data Analytics",
       "strength": 4,
       "position": {
-        "x": -1.1165314724019832,
-        "y": -1.9741476586842355,
+        "x": 1.628016221876402,
+        "y": -2.4,
         "z": 0
       },
       "relatedProjectIds": [
@@ -282,6 +305,24 @@
       ]
     },
     {
+      "source": "brain_tumor_detection",
+      "target": "onyx",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "AI/ML"
+      ]
+    },
+    {
+      "source": "cra_audit_knowledge_retrieval",
+      "target": "onyx",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "AI/ML"
+      ]
+    },
+    {
       "source": "eco_intelligence_dashboard",
       "target": "happy_hour_in_my_city",
       "strength": 2,
@@ -321,6 +362,15 @@
       ]
     },
     {
+      "source": "eco_intelligence_dashboard",
+      "target": "onyx",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Full Stack"
+      ]
+    },
+    {
       "source": "happy_hour_in_my_city",
       "target": "nse_stock_tracker",
       "strength": 1,
@@ -330,7 +380,34 @@
       ]
     },
     {
+      "source": "happy_hour_in_my_city",
+      "target": "onyx",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Full Stack"
+      ]
+    },
+    {
       "source": "nse_stock_tracker",
+      "target": "onyx",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Full Stack"
+      ]
+    },
+    {
+      "source": "nse_stock_tracker",
+      "target": "route_optimizer",
+      "strength": 1,
+      "relationshipLabel": "same-domain",
+      "domains": [
+        "Full Stack"
+      ]
+    },
+    {
+      "source": "onyx",
       "target": "route_optimizer",
       "strength": 1,
       "relationshipLabel": "same-domain",
