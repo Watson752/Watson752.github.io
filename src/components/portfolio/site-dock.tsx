@@ -30,14 +30,15 @@ export function SiteDock({ name, status, nav, className }: SiteDockProps) {
       )}
     >
       <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-border bg-titlebar/95 px-2 py-1.5 shadow-elevated backdrop-blur-sm">
+        {/* Name is hidden on phones so the nav links fit without scrolling. */}
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] text-foreground"
+          className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] text-foreground sm:flex"
         >
           <StatusIndicator status={status} showLabel={false} />
           {name}
         </Link>
-        <span className="text-border" aria-hidden>
+        <span className="hidden text-border sm:inline" aria-hidden>
           |
         </span>
         {nav.map((item) => {
