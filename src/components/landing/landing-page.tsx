@@ -12,6 +12,7 @@ import { ExperienceLog } from "@/components/portfolio/experience-log";
 import { ProjectEvidenceGrid } from "@/components/portfolio/project-evidence-grid";
 import { SiteDock } from "@/components/portfolio/site-dock";
 import { TerminalBadge } from "@/components/portfolio/terminal-badge";
+import { WebringWidget } from "@/components/portfolio/webring-widget";
 import { SectionShell } from "@/components/terminal/section-shell";
 import { TerminalShell } from "@/components/terminal/terminal-shell";
 import { usePortfolioIntelligence } from "@/hooks/use-portfolio-intelligence";
@@ -137,6 +138,7 @@ export function LandingPage() {
         </SectionShell>
       </TerminalShell>
 
+      <WebringWidget show={activeId === "contact"} />
       <SectionRail sections={SECTIONS} activeId={activeId} />
       <SiteDock name={siteProfile.name} status={siteProfile.status} nav={siteProfile.nav} />
     </>
